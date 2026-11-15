@@ -76,8 +76,9 @@ test('full onboarding, then no request has left the app with Drive off', async (
   await expect(page.getByRole('dialog', { name: 'Open-source licences' })).toContainText('Written offer of source');
   await button(page, 'Close').click();
 
-  const stats = await s.app.evaluate(() => (globalThis as unknown as { __networkGuardStats: { allowedExternal: number } }).__networkGuardStats);
-  expect(stats.allowedExternal).toBe(0);
+  // Nothing was allowed out, and nothing even tried.
+  const stats = await s.app.evaluate(() => (globalThis as unknown as { __networkGuardStats: unknown }).__networkGuardStats);
+  expect(stats).toEqual({ allowedExternal: 0, blocked: 0 });
 });
 
 test('search filters chats, rings matches and shows the empty state', async () => {

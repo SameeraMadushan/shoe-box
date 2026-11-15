@@ -99,7 +99,10 @@ function Connect() {
       ) : (
         <div className={`status ${found ? 'ok' : ''}`} role="status">
           <Phone />
-          <span>{found ? `iPhone found: ${device.name}` : 'Looking for an iPhone…'}</span>
+          <span>
+            {found ? `iPhone found: ${device.name}` : 'Looking for an iPhone…'}
+            {found && device.iosVersion && <span className="small muted"> · iOS {device.iosVersion}</span>}
+          </span>
         </div>
       )}
       <div className="row gap12 wrap">

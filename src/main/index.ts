@@ -83,7 +83,7 @@ async function main(): Promise<void> {
     driversOk: await device.driversOk(),
     secureStorage: secrets.persistent,
     wifiManualSetup: !device.canEnableWifi,
-    device: { status: 'idle', name: settings.get().deviceName, willEncrypt: null, error: null },
+    device: { status: 'idle', name: settings.get().deviceName, iosVersion: null, willEncrypt: null, error: null },
     run: null,
     history: [],
     nextBackupAt: null,
@@ -238,7 +238,7 @@ async function main(): Promise<void> {
   function startSearch(): void {
     stopTimers();
     currentDevice = null;
-    push({ device: { status: 'searching', name: null, willEncrypt: null, error: null } });
+    push({ device: { status: 'searching', name: null, iosVersion: null, willEncrypt: null, error: null } });
     const poll = async () => {
       try {
         const found = (await device.list(false))[0];
@@ -247,7 +247,7 @@ async function main(): Promise<void> {
         stopTimers();
         const info = await device.info(found);
         settings.update({ udid: found.udid, deviceName: info.name });
-        push({ device: { status: 'found', name: info.name, willEncrypt: null, error: null } });
+        push({ device: { status: 'found', name: info.name, iosVersion: info.iosVersion || null, willEncrypt: null, error: null } });
       } catch (e) {
         deviceFailed(e);
       }
@@ -320,7 +320,7 @@ async function main(): Promise<void> {
     restartOnboarding: () => {
       settings.update({ onboarded: false });
       applyLoginItem();
-      push({ device: { status: 'idle', name: null, willEncrypt: null, error: null } });
+      push({ device: { status: 'idle', name: null, iosVersion: null, willEncrypt: null, error: null } });
     },
     updateSettings: (patch) => {
       const clean: Partial<Settings> = {};

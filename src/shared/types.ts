@@ -49,6 +49,7 @@ export interface ActiveRun {
 export interface DeviceState {
   status: 'idle' | 'searching' | 'found' | 'pairing' | 'trusted';
   name: string | null;
+  iosVersion: string | null;
   /** True when the phone already has a backup password from an earlier backup. */
   willEncrypt: boolean | null;
   error: ErrorCode | null;
