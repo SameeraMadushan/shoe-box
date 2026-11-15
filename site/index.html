@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shoebox: keep your iPhone chats on your own computer</title>
+<meta name="description" content="A free, open-source desktop app for macOS and Windows that backs up your iPhone chats to your own computer and lets you read them offline.">
+<meta property="og:title" content="Shoebox">
+<meta property="og:description" content="Back up your iPhone chats to your own computer and read them offline. Free and open source.">
+<meta property="og:image" content="https://sameeramadushan.github.io/shoe-box/chats.png">
+<link rel="icon" href="mark.png">
+<style>
+/* Same tokens as src/renderer/theme/tokens.css. No remote fonts or scripts, like the app. */
+@font-face { font-family: 'Space Grotesk'; font-weight: 700; font-display: swap; src: url(space-grotesk-700.woff2) format('woff2'); }
+:root {
+  --bg: #0f1420; --surface: #171d2b; --border: #283044; --border-strong: #3a445c;
+  --text: #e8ecf4; --text-2: #c2c9d6; --muted: #98a2b5;
+  --accent: #2456d6; --accent-hover: #1a3fa3; --accent-text: #8fb0ff;
+  --warn-text: #ffd79a; --warn-bg: #3a2a10; --warn-border: #7a5a22;
+  --font: Inter, system-ui, sans-serif; --font-head: 'Space Grotesk', Inter, system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 17px; line-height: 1.55; }
+a { color: var(--accent-text); }
+a:hover { color: #b4caff; }
+:focus-visible { outline: 3px solid #7fa2f5; outline-offset: 2px; }
+h1, h2, h3, p, ul { margin: 0; }
+h1, h2, .name { font-family: var(--font-head); font-weight: 700; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; }
+.name { font-size: 20px; }
+.hero { padding: 56px 0 40px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+h1 { font-size: clamp(32px, 6vw, 54px); line-height: 1.08; max-width: 16ch; text-wrap: balance; }
+.lede { font-size: 19px; color: var(--text-2); max-width: 56ch; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.btn, .btn2 { min-height: 48px; padding: 0 22px; border-radius: 10px; display: inline-flex; align-items: center; font-weight: 600; text-decoration: none; }
+.btn { background: var(--accent); border: 1px solid var(--accent); color: #fff; }
+.btn:hover { background: var(--accent-hover); color: #fff; }
+.btn2 { background: var(--surface); border: 1px solid var(--border-strong); color: var(--text); }
+.btn2:hover { background: var(--bg); color: var(--text); }
+.small { font-size: 14px; color: var(--muted); }
+.warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text); border-radius: 12px; padding: 12px 16px; font-size: 15px; max-width: 62ch; }
+.warn a { color: inherit; }
+.shot { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5); }
+section { padding: 56px 0; }
+h2 { font-size: 28px; line-height: 1.2; margin-bottom: 24px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
+.card h3 { font-size: 17px; margin-bottom: 6px; }
+.card p { color: var(--text-2); font-size: 16px; }
+.list { padding-left: 20px; color: var(--text-2); display: flex; flex-direction: column; gap: 8px; max-width: 70ch; }
+footer { border-top: 1px solid var(--border); padding: 28px 0 48px; display: flex; flex-direction: column; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="./">
+      <img src="mark.png" alt="" width="36" height="36">
+      <span class="name">Shoebox</span>
+    </a>
+    <a href="https://github.com/SameeraMadushan/shoe-box">GitHub</a>
+  </header>
+
+  <main>
+    <div class="hero">
+      <h1>Keep your iPhone chats on your own computer</h1>
+      <p class="lede">Shoebox is a free, open-source desktop app for macOS and Windows. It backs up your iPhone, copies your chats into an archive that only grows, and lets you read them offline.</p>
+      <div class="cta">
+        <a class="btn" href="https://github.com/SameeraMadushan/shoe-box/releases">Download</a>
+        <a class="btn2" href="https://github.com/SameeraMadushan/shoe-box">Source on GitHub</a>
+      </div>
+      <p class="small">macOS and Windows · MIT licence · nothing is installed on the iPhone</p>
+      <p class="warn"><strong>Early build: not yet tested with a real iPhone.</strong> Everything that can be tested without a phone is tested. You can try the whole app on sample chats with <a href="https://github.com/SameeraMadushan/shoe-box#try-it-without-an-iphone">mock mode</a>.</p>
+    </div>
+
+    <img class="shot" src="chats.png" width="2560" height="1536" alt="The Shoebox window: a list of chats on the left and a conversation on the right, with a message marked “Deleted on phone, kept here”.">
+
+    <section>
+      <h2>What it does</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Backs up your iPhone</h3>
+          <p>Makes an encrypted backup on your computer using Apple's own backup protocol.</p>
+        </div>
+        <div class="card">
+          <h3>Keeps what you delete</h3>
+          <p>Chats, photos, videos and voice notes go into an archive that only grows. Messages you later delete on the phone stay.</p>
+        </div>
+        <div class="card">
+          <h3>Lets you read and search</h3>
+          <p>A read-only viewer shows the archive, with search across chats and messages.</p>
+        </div>
+        <div class="card">
+          <h3>Repeats every day</h3>
+          <p>Runs from the menu bar or system tray, over Wi-Fi after the first cabled connection.</p>
+        </div>
+        <div class="card">
+          <h3>Optional Google Drive copy</h3>
+          <p>If you turn it on, an encrypted copy of the archive is uploaded to your own Google Drive.</p>
+        </div>
+        <div class="card">
+          <h3>Which chats?</h3>
+          <p>The app reads the WhatsApp data inside the iPhone backup. On iPhone, WhatsApp itself only backs up to iCloud.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Privacy</h2>
+      <ul class="list">
+        <li>Fully offline. No analytics, telemetry, crash reporting or update checks, and no remote fonts or scripts.</li>
+        <li>The only network traffic is Google sign-in and Drive upload, and only after you turn Drive sync on. Everything else is blocked in the app, and a test proves it.</li>
+        <li>Chat content, names, numbers, passwords and keys are never written to logs.</li>
+        <li>Your archive is stored unencrypted in your user folder, protected by your computer login. Turn on FileVault or BitLocker.</li>
+        <li>It cannot put chats alone back into the chat app. The full iPhone backup it keeps can <a href="https://github.com/SameeraMadushan/shoe-box/blob/main/docs/restore-to-iphone.md">restore a whole iPhone</a> with Apple's tools.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="small">
+    <p>Free and open source under the <a href="https://github.com/SameeraMadushan/shoe-box/blob/main/LICENSE">MIT licence</a>. <a href="https://github.com/SameeraMadushan/shoe-box/blob/main/THIRD_PARTY.md">Third-party licences</a> · <a href="https://github.com/SameeraMadushan/shoe-box/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/SameeraMadushan/shoe-box/blob/main/CONTRIBUTING.md">Contributing</a></p>
+    <p>Not affiliated with or endorsed by WhatsApp or Meta, Apple, or Google.</p>
+  </footer>
+</div>
+</body>
+</html>
