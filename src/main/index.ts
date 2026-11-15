@@ -120,6 +120,8 @@ async function main(): Promise<void> {
 
   /** Free space on the disk that holds (or will hold) a folder. */
   async function freeBytes(dir: string): Promise<number> {
+    // Mock runs must not depend on the real disk: CI runners have less free than the mock phone uses.
+    if (MOCK) return 256e9;
     let probe = dir;
     while (!existsSync(probe)) probe = dirname(probe);
     const fs = await statfs(probe);

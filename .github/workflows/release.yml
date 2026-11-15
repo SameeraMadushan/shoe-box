@@ -1,0 +1,32 @@
+# Builds the installer on a version tag and attaches it to a draft GitHub release.
+# Build infrastructure only; not part of the app's offline guarantee (ADR section 11).
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  mac:
+    runs-on: macos-latest
+    env:
+      GOOGLE_OAUTH_CLIENT_ID: ${{ vars.GOOGLE_OAUTH_CLIENT_ID }}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Tag must match the package.json version
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - run: npm ci
+      - run: npm run licenses
+      - run: npx tsx scripts/fetch-vendor.ts darwin-arm64
+      - run: npx electron-vite build
+      # Apple silicon only: the device tools for Intel Macs and Windows cannot be fetched
+      # (docs/vendor-tools.md), so those installers would not be able to reach an iPhone.
+      - run: npx electron-builder --mac dmg:arm64 --publish never
+      - run: gh release create "$GITHUB_REF_NAME" dist/*.dmg --draft --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
