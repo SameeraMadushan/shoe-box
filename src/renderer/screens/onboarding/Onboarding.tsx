@@ -469,10 +469,7 @@ export function Onboarding() {
     <div className="onb">
       <div className="onb-head">
         <AppMark />
-        <div className="col">
-          <span className="onb-name">Shoebox</span>
-          <span className="small muted">Free and open source</span>
-        </div>
+        <span className="onb-name">Shoebox</span>
       </div>
       <main className="card">
         {stepNum > 0 && (
@@ -487,6 +484,7 @@ export function Onboarding() {
         )}
         <Screen />
       </main>
+      <span className="onb-tagline small muted">Free and open source</span>
     </div>
   );
 }
