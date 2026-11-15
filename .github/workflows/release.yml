@@ -1,10 +1,11 @@
-# Builds the installers on a version tag and attaches them to a draft GitHub release.
+# Builds the installers on a version tag (0.1.0 or v0.1.0) and attaches them to that tag's
+# GitHub release, or to a new draft release if there is none yet.
 # A manual run builds them without releasing.
 # Build infrastructure only; not part of the app's offline guarantee (ADR section 11).
 name: Release
 on:
   push:
-    tags: ['v*']
+    tags: ['v*', '[0-9]*']
   workflow_dispatch:
 permissions:
   contents: write
@@ -30,7 +31,7 @@ jobs:
       - name: Tag must match the package.json version
         if: github.ref_type == 'tag'
         shell: bash
-        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+        run: test "$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME#v}"
       - run: npm ci
 
       # Apple silicon takes the device tools from pinned Homebrew bottles (vendor.lock.json).
@@ -112,6 +113,12 @@ jobs:
         with:
           path: dist
           merge-multiple: true
-      - run: gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --draft --generate-notes
+      # A release made on github.com already exists when its tag arrives here.
+      - run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --draft --generate-notes
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
