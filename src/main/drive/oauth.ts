@@ -116,11 +116,11 @@ export async function signIn(
         res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
         try {
           const c = parseCallback(req.url, state);
-          res.end('Signed in. You can close this tab and return to Chat Archive.');
+          res.end('Signed in. You can close this tab and return to Shoebox.');
           clearTimeout(timer);
           resolve(c);
         } catch (e) {
-          res.end('Sign-in did not complete. You can close this tab and try again in Chat Archive.');
+          res.end('Sign-in did not complete. You can close this tab and try again in Shoebox.');
           clearTimeout(timer);
           reject(e as Error);
         }

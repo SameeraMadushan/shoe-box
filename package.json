@@ -1,14 +1,14 @@
 {
-  "name": "chat-archive",
+  "name": "shoebox",
   "version": "0.1.0",
   "description": "Back up your iPhone chats to your own computer and read them offline.",
   "license": "MIT",
-  "author": "Chat Archive contributors",
+  "author": "Shoebox contributors",
   "private": true,
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
-    "dev:mock": "cross-env CHAT_ARCHIVE_MOCK=1 electron-vite dev",
+    "dev:mock": "cross-env SHOEBOX_MOCK=1 electron-vite dev",
     "build": "electron-vite build",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.json",

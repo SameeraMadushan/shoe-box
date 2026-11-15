@@ -11,7 +11,7 @@ Before you start:
 - Use a phone you can afford to experiment with. Setting a backup password changes a
   setting on the phone.
 - When something fails, the redacted tool output is in the app's log folder
-  (`~/Library/Application Support/Chat Archive/logs` or `%APPDATA%\Chat Archive\logs`).
+  (`~/Library/Application Support/Shoebox/logs` or `%APPDATA%\Shoebox\logs`).
   Check that the log holds no names, numbers or message text.
 
 ## The checks

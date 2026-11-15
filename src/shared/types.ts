@@ -123,7 +123,6 @@ export interface Preflight {
 /** Fixed allowlist of links that may open in the system browser. */
 export const EXTERNAL_LINKS = {
   appleDevices: 'https://apps.microsoft.com/detail/9np83lwlpz9k',
-  releases: 'https://github.com/chat-archive/chat-archive/releases',
   resetBackupPassword: 'https://support.apple.com/108313',
 } as const;
 export type ExternalLink = keyof typeof EXTERNAL_LINKS;

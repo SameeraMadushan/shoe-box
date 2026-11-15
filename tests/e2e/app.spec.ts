@@ -37,6 +37,8 @@ test('full onboarding, then no request has left the app with Drive off', async (
   app = s.app;
   const { page } = s;
   await expect(page.getByRole('heading', { name: 'Keep your iPhone chats on your own computer' })).toBeVisible();
+  await expect(page.locator('.onb-name')).toHaveText('Shoebox');
+  expect(await page.locator('.onb-head img').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(160);
   await button(page, 'Get started').click();
   await expect(page.getByText('Step 1 of 6')).toBeVisible();
   await expect(page.getByText(/iPhone found: iPhone 15/)).toBeVisible();
@@ -67,6 +69,7 @@ test('full onboarding, then no request has left the app with Drive off', async (
   await button(page, 'Open my chats').click();
 
   await expect(page.getByRole('button', { name: /Nadia Perera/ })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Main' }).getByAltText('Shoebox')).toBeVisible();
   await expect(page.getByText('Love it. See you at 11').last()).toBeVisible();
   await expect(page.getByText('Deleted on phone · kept here')).toBeVisible();
   await expect(page.getByText(/Read-only archive · last updated today/)).toBeVisible();

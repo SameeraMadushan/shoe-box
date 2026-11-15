@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BackupIcon, ChatsIcon } from '../components/Icons';
+import { AppMark, BackupIcon, ChatsIcon } from '../components/Icons';
 import { Backup } from '../screens/backup/Backup';
 import { Chats } from '../screens/chats/Chats';
 import { Onboarding } from '../screens/onboarding/Onboarding';
@@ -25,6 +25,9 @@ export function App() {
   return (
     <div className="app">
       <nav className="rail" aria-label="Main">
+        <span className="rail-mark">
+          <AppMark size={44} alt="Shoebox" />
+        </span>
         <button aria-label="Chats" aria-current={screen === 'chats' ? 'page' : undefined} onClick={() => setScreen('chats')}>
           <ChatsIcon />
           <span>Chats</span>

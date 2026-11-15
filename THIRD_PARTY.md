@@ -1,6 +1,6 @@
 # Third-party components
 
-Chat Archive's own code is MIT-licensed (see `LICENSE`). It ships with, or was written
+Shoebox's own code is MIT-licensed (see `LICENSE`). It ships with, or was written
 with reference to, the components below. Full licence texts are in `licenses/`.
 
 This file is engineering guidance, not legal advice.
@@ -67,4 +67,4 @@ licence. The machine-readable list is `licenses/npm-licenses.json`.
 
 ## Trademarks
 
-Chat Archive is not affiliated with or endorsed by WhatsApp or Meta, Apple, or Google.
+Shoebox is not affiliated with or endorsed by WhatsApp or Meta, Apple, or Google.

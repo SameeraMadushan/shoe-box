@@ -1,5 +1,6 @@
 // Inline stroke icons from the prototype. Decorative unless a label is given.
 import type { ReactNode } from 'react';
+import mark from '../assets/mark.png';
 
 function Svg({ size = 20, stroke = 'currentColor', width = 2, children }: { size?: number; stroke?: string; width?: number; children: ReactNode }) {
   return (
@@ -9,12 +10,8 @@ function Svg({ size = 20, stroke = 'currentColor', width = 2, children }: { size
   );
 }
 
-export const AppMark = () => (
-  <Svg size={28} stroke="var(--accent-text)">
-    <path d="M4 5h16v11H9l-5 4z" />
-    <path d="M9 10.5l2 2 4-4" />
-  </Svg>
-);
+/** The Shoebox mark without a background. Decorative unless `alt` is given. */
+export const AppMark = ({ size = 36, alt = '' }: { size?: number; alt?: string }) => <img src={mark} width={size} height={size} alt={alt} />;
 export const Check = () => (
   <Svg stroke="var(--success)" width={2.4}>
     <path d="M5 12.5l4.5 4.5L19 7.5" />

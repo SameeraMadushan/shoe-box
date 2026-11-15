@@ -13,7 +13,7 @@ include real chat data, backups, passwords or keys in a report.
 | iPhone backup | `<archive folder>/backup/` | Apple's backup encryption, with your backup password |
 | Chat archive (database and media) | `<archive folder>/archive/` | **Not encrypted.** Readable by anyone who can read your files. Protected by your computer login and disk encryption (FileVault, BitLocker). Folders are created user-only. |
 | Backup password, Google token, Drive recovery key | `secrets.bin` in the app's data folder | Encrypted with the operating system (macOS Keychain, Windows DPAPI) |
-| Copy on Google Drive | Your Drive, folder `ChatArchive` | Encrypted on your computer before upload (rclone crypt), file names included |
+| Copy on Google Drive | Your Drive, folder `Shoebox` | Encrypted on your computer before upload (rclone crypt), file names included |
 
 If the operating system cannot protect secrets, the app does not fall back to
 plaintext: it keeps the password in memory only and turns scheduled backups off.

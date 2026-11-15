@@ -1,4 +1,4 @@
-# Build report: Chat Archive, first build
+# Build report: Shoebox, first build
 
 Built on 15 November 2026 on macOS 26.5 (Apple silicon), Node 24.22, from
 `docs/adr/0001-architecture.md`.
@@ -37,7 +37,7 @@ Final run, on this machine:
 | Unit | `npm test` | 55 of 55 pass, 6 files |
 | End to end | `npm run e2e` | 13 of 13 pass (12 mock mode, 1 real mode without a phone) |
 | Licence report | `npm run licenses` | 14 shipped npm packages, all MIT or OFL-1.1 |
-| Installer | `npm run dist:mac` | Pass: `dist/Chat Archive-0.1.0-arm64.dmg` (165 MB), `dist/Chat Archive-0.1.0.dmg` (x64, 173 MB) |
+| Installer | `npm run dist:mac` | Pass: `dist/Shoebox-0.1.0-arm64.dmg` (165 MB), `dist/Shoebox-0.1.0.dmg` (x64, 173 MB) |
 | Packaged app | launched the arm64 `.app` in mock mode | Onboarding, audio playback and the licence screen work |
 
 The x64 dmg was built but never launched, and it contains no device tools (see 5).
@@ -125,13 +125,12 @@ Technical differences found in the references and the pinned tools are in
 Assumptions where the ADR was silent:
 
 - All six open questions in ADR section 14 were taken at their defaults: separate
-  recovery key, unencrypted archive behind the OS login, MIT, "Chat Archive" as the
+  recovery key, unencrypted archive behind the OS login, MIT, "Shoebox" as the
   name, backup kept after extraction, no update check.
-- **The releases link is a placeholder**: `https://github.com/chat-archive/chat-archive/releases`
-  in `src/shared/types.ts`. It must be changed to the real repository before release.
+- There is no link to a releases page yet: the project has no public repository URL. Add it to `EXTERNAL_LINKS` in `src/shared/types.ts` and to the Backup screen when it exists.
 - The Apple Devices link is the Microsoft Store product page `9NP83LWLPZ9K`; the
   password-reset help link is `support.apple.com/108313`. Neither was opened to check.
-- The app icon is Electron's default. The tray icon is a drawn chat bubble.
+- The app is named Shoebox and uses the icon and mark from the design (`docs/prototype/Logo.dc.html`): `build/icon.png` for the dock, taskbar and installer, the mark inside the app and in the tray.
 - "Set up a different iPhone" returns to onboarding and keeps the existing archive.
   A second phone's chats are added to it.
 - The `status@broadcast` pseudo-chat and system events are not imported.
@@ -142,7 +141,7 @@ Assumptions where the ADR was silent:
 - The scheduler does not notify for manual runs; the screen shows those failures.
 - The mock data folder and profile are separate from the real ones, so mock mode can
   never touch a real archive.
-- `CHAT_ARCHIVE_USER_DATA` and `CHAT_ARCHIVE_DATA_DIR` override the profile and
+- `SHOEBOX_USER_DATA` and `SHOEBOX_DATA_DIR` override the profile and
   archive folders. They exist for tests.
 - The licence screen shows `THIRD_PARTY.md`, which names WhatsApp Chat Exporter as a
   credited source. That is the one place the name appears in the app; the MIT licence
@@ -186,7 +185,7 @@ npm install
 
 # Mock mode: the whole app on invented data, no iPhone, no network
 npm run dev:mock
-CHAT_ARCHIVE_MOCK_FLAGS=fail,encrypted npm run dev:mock   # other states; see README
+SHOEBOX_MOCK_FLAGS=fail,encrypted npm run dev:mock   # other states; see README
 
 # For real
 npm run vendor      # device tools (Apple silicon only) and rclone, checksummed
@@ -203,8 +202,8 @@ npm run dist:win    # dist/*.exe, on Windows
 GOOGLE_OAUTH_CLIENT_ID=... GOOGLE_OAUTH_CLIENT_SECRET=... npm run dist:mac
 ```
 
-Real mode writes to `~/ChatArchive` and to the app's profile folder
-(`~/Library/Application Support/Chat Archive`).
+Real mode writes to `~/Shoebox` and to the app's profile folder
+(`~/Library/Application Support/Shoebox`).
 
 ## 7. Known issues and next steps
 
@@ -222,7 +221,7 @@ Known issues:
    highlights at most the 5,000 newest matches.
 6. There is no in-app view of tool errors; the redacted detail is in the log only.
 7. On macOS the Dock icon stays while the app is in the menu bar.
-8. Installers are unsigned, use the default Electron icon, and are large (165 MB),
+8. Installers are unsigned and large (165 MB),
    of which rclone is 89 MB.
 9. `npm audit` reports 12 moderate advisories, all in development tooling; `npm audit --omit=dev` reports none.
 
@@ -233,7 +232,7 @@ Human tasks (from ADR section 15):
 - [ ] Build the device tools for Windows and Intel Macs (`docs/vendor-tools.md`).
 - [ ] Create the Google OAuth client and set the two build variables
       (`docs/google-oauth-setup.md`).
-- [ ] Set the real releases URL, product name and icon.
+- [ ] Add the releases page link once the repository is public.
 - [ ] Answer the open questions in ADR section 14.
 - [ ] Confirm the licence position in ADR section 9 before the first public release.
 - [ ] Obtain signing certificates if signed installers are wanted.

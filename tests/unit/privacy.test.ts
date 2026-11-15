@@ -7,11 +7,11 @@ import { parseRange } from '../../src/main/media-protocol';
 
 it('redacts identifying details from tool output before logging', () => {
   const out = redact(
-    'ERROR: Device 00008120-001A2B3C4D5E6F01 "Sam\'s iPhone" at /Users/sam/ChatArchive/backup failed for 15550101@s.whatsapp.net tel 447700900123',
+    'ERROR: Device 00008120-001A2B3C4D5E6F01 "Sam\'s iPhone" at /Users/sam/Shoebox/backup failed for 15550101@s.whatsapp.net tel 447700900123',
   );
   for (const leak of ['00008120', 'Sam', '/Users', 'whatsapp', '15550101', '447700900123']) expect(out).not.toContain(leak);
   expect(out).toContain('ERROR: Device [device]');
-  expect(redact('C:\\Users\\sam\\ChatArchive missing')).not.toContain('sam');
+  expect(redact('C:\\Users\\sam\\Shoebox missing')).not.toContain('sam');
 });
 
 it('writes structured log lines', () => {

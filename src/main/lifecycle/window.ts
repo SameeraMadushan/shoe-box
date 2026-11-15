@@ -9,7 +9,7 @@ export function createWindow(): BrowserWindow {
     minWidth: 720,
     minHeight: 620,
     backgroundColor: '#0F1420',
-    title: 'Chat Archive',
+    title: 'Shoebox',
     show: false,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

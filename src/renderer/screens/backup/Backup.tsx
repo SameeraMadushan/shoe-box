@@ -208,7 +208,7 @@ function Drive({ app }: { app: AppState }) {
           <div className="col grow">
             <span className="strong ok-text">Connected{app.settings.driveEmail ? ` · ${app.settings.driveEmail}` : ''}</span>
             <span className="small muted">
-              {status === 'syncing' ? `Syncing to Google Drive… ${Math.round(syncPercent)}%` : 'Folder: My Drive / ChatArchive · encrypted · syncs after each backup'}
+              {status === 'syncing' ? `Syncing to Google Drive… ${Math.round(syncPercent)}%` : 'Folder: My Drive / Shoebox · encrypted · syncs after each backup'}
             </span>
             <span className="small muted">Disconnecting leaves the files already on Drive in place.</span>
           </div>
@@ -369,9 +369,6 @@ export function Backup() {
           </button>
           <button className="link" onClick={() => void window.api.getLicences().then(setLicences)}>
             Open-source licences
-          </button>
-          <button className="link" onClick={() => void window.api.openExternal('releases')}>
-            Project releases page
           </button>
         </div>
       </div>

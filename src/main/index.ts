@@ -24,8 +24,8 @@ import { createSecrets } from './secrets';
 import { SettingsStore } from './settings';
 import { WorkerClient } from './worker-client';
 
-app.setName('Chat Archive');
-if (process.env.CHAT_ARCHIVE_USER_DATA) app.setPath('userData', process.env.CHAT_ARCHIVE_USER_DATA);
+app.setName('Shoebox');
+if (process.env.SHOEBOX_USER_DATA) app.setPath('userData', process.env.SHOEBOX_USER_DATA);
 else if (MOCK) app.setPath('userData', `${app.getPath('userData')} (mock)`);
 registerMediaScheme();
 
@@ -217,6 +217,7 @@ async function main(): Promise<void> {
     app.setLoginItemSettings({ openAtLogin: s.onboarded && s.startAtLogin, args: ['--hidden'] });
   }
 
+  if (!app.isPackaged) app.dock?.setIcon(join(app.getAppPath(), 'build', 'icon.png'));
   Menu.setApplicationMenu(
     Menu.buildFromTemplate([...(process.platform === 'darwin' ? [{ role: 'appMenu' as const }] : []), { role: 'editMenu' }, { role: 'windowMenu' }]),
   );
@@ -390,7 +391,7 @@ async function main(): Promise<void> {
       const parent = picked.filePaths[0];
       if (picked.canceled || !parent) return;
       const from = settings.get().dataDir;
-      const to = join(parent, 'ChatArchive');
+      const to = join(parent, 'Shoebox');
       if (to === from || existsSync(to)) return;
       await worker.call('close');
       try {

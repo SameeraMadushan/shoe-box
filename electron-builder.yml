@@ -1,6 +1,6 @@
-appId: org.chatarchive.app
-productName: Chat Archive
-copyright: Copyright © 2026 Chat Archive contributors
+appId: org.shoebox.app
+productName: Shoebox
+copyright: Copyright © 2026 Shoebox contributors
 directories:
   output: dist
 files:

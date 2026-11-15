@@ -27,7 +27,7 @@ function Welcome() {
     <>
       <h1 className="big">Keep your iPhone chats on your own computer</h1>
       <p className="text2">
-        Chat Archive backs up your iPhone to this computer and lets you read your chats here. Nothing is installed on your iPhone, and
+        Shoebox backs up your iPhone to this computer and lets you read your chats here. Nothing is installed on your iPhone, and
         nothing leaves this computer unless you turn on Google Drive sync.
       </p>
       <div className="inset col gap12">
@@ -198,7 +198,7 @@ function Password() {
       <h1>{existing ? 'Enter your iPhone backup password' : 'Set a backup password'}</h1>
       <p className="text2">
         {existing
-          ? 'This iPhone already has a backup password from an earlier backup made with Finder or iTunes. Enter that password so Chat Archive can read the backup.'
+          ? 'This iPhone already has a backup password from an earlier backup made with Finder or iTunes. Enter that password so Shoebox can read the backup.'
           : 'The iPhone backup is encrypted with this password. Your readable chat archive is protected by your computer login. Turn on FileVault or BitLocker for full protection.'}
       </p>
       <div className="col gap6">
@@ -282,7 +282,7 @@ function Wifi() {
       {app.settings.wifiSync && app.wifiManualSetup && (
         <div className="info">
           One step to do by hand: with the cable connected, open {app.platform === 'win32' ? 'the Apple Devices app' : 'Finder'}, select
-          your iPhone and tick "Show this iPhone when on Wi-Fi". Chat Archive cannot switch this on for you.
+          your iPhone and tick "Show this iPhone when on Wi-Fi". Shoebox cannot switch this on for you.
         </div>
       )}
       <div className="inset col gap10">
@@ -468,7 +468,7 @@ export function Onboarding() {
     <div className="onb">
       <div className="onb-head">
         <AppMark />
-        <span className="onb-name">Chat Archive</span>
+        <span className="onb-name">Shoebox</span>
         <span className="small muted">Free and open source</span>
       </div>
       <main className="card">

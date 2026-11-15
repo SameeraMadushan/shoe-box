@@ -85,7 +85,7 @@ describe('rclone configuration', () => {
       RCLONE_CONFIG_GDRIVE_CLIENT_ID: 'test-client-id',
       RCLONE_CONFIG_GDRIVE_CLIENT_SECRET: 'test-client-secret',
       RCLONE_CONFIG_VAULT_TYPE: 'crypt',
-      RCLONE_CONFIG_VAULT_REMOTE: 'gdrive:ChatArchive',
+      RCLONE_CONFIG_VAULT_REMOTE: 'gdrive:Shoebox',
       RCLONE_CONFIG_VAULT_FILENAME_ENCRYPTION: 'standard',
       RCLONE_CONFIG_VAULT_DIRECTORY_NAME_ENCRYPTION: 'true',
     });

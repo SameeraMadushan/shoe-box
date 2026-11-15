@@ -14,7 +14,7 @@ test('real mode starts, runs the bundled device tool, and finds no iPhone', asyn
   const userData = newUserData();
   const app = await electron.launch({
     args: ['.'],
-    env: { ...(process.env as Record<string, string>), CHAT_ARCHIVE_MOCK: '', CHAT_ARCHIVE_USER_DATA: userData, CHAT_ARCHIVE_DATA_DIR: join(userData, 'data') },
+    env: { ...(process.env as Record<string, string>), SHOEBOX_MOCK: '', SHOEBOX_USER_DATA: userData, SHOEBOX_DATA_DIR: join(userData, 'data') },
   });
   const page = await app.firstWindow();
   const state = await page.evaluate(() => window.api.getState());

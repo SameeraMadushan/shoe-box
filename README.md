@@ -1,4 +1,4 @@
-# Chat Archive
+# Shoebox
 
 A free, open-source desktop app for macOS and Windows that keeps your iPhone chats on
 your own computer.
@@ -45,7 +45,7 @@ Mock mode runs the whole app on invented sample chats. It never touches a phone,
 network or your real archive. Extra switches, comma separated:
 
 ```sh
-CHAT_ARCHIVE_MOCK_FLAGS=fail,encrypted npm run dev:mock
+SHOEBOX_MOCK_FLAGS=fail,encrypted npm run dev:mock
 ```
 
 | Flag | Shows |
@@ -59,7 +59,7 @@ CHAT_ARCHIVE_MOCK_FLAGS=fail,encrypted npm run dev:mock
 | `drivefail` | A failed Drive sync. |
 | `big` | Adds a chat with 200,000 messages. |
 
-`CHAT_ARCHIVE_MOCK_SPEED=10` makes the mock timings ten times faster.
+`SHOEBOX_MOCK_SPEED=10` makes the mock timings ten times faster.
 
 ## Run it for real
 

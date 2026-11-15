@@ -3,7 +3,7 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-export const newUserData = (): string => mkdtempSync(join(tmpdir(), 'chat-archive-e2e-'));
+export const newUserData = (): string => mkdtempSync(join(tmpdir(), 'shoebox-e2e-'));
 
 /** Launches the built app in mock mode with its own throwaway profile. */
 export async function launch(options: { flags?: string; userData?: string; speed?: number } = {}): Promise<{ app: ElectronApplication; page: Page; userData: string }> {
@@ -12,10 +12,10 @@ export async function launch(options: { flags?: string; userData?: string; speed
     args: ['.'],
     env: {
       ...(process.env as Record<string, string>),
-      CHAT_ARCHIVE_MOCK: '1',
-      CHAT_ARCHIVE_MOCK_SPEED: String(options.speed ?? 25),
-      CHAT_ARCHIVE_MOCK_FLAGS: options.flags ?? '',
-      CHAT_ARCHIVE_USER_DATA: userData,
+      SHOEBOX_MOCK: '1',
+      SHOEBOX_MOCK_SPEED: String(options.speed ?? 25),
+      SHOEBOX_MOCK_FLAGS: options.flags ?? '',
+      SHOEBOX_USER_DATA: userData,
     },
   });
   const page = await app.firstWindow();

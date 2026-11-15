@@ -35,7 +35,7 @@ export function splitRecoveryKey(key: string): { password: string; password2: st
   return { password: raw.slice(0, 52), password2: raw.slice(52) };
 }
 
-export const DRIVE_FOLDER = 'ChatArchive';
+export const DRIVE_FOLDER = 'Shoebox';
 
 export function rcloneEnv(p: { client: OAuthClient; refreshToken: string; recoveryKey: string }): Record<string, string> {
   const { password, password2 } = splitRecoveryKey(p.recoveryKey);

@@ -12,7 +12,7 @@ export class WorkerClient {
   onProgress: (p: Progress) => void = () => {};
 
   constructor(modulePath: string) {
-    this.child = utilityProcess.fork(modulePath, [], { serviceName: 'Chat Archive worker' });
+    this.child = utilityProcess.fork(modulePath, [], { serviceName: 'Shoebox worker' });
     this.child.on('message', (msg: { id?: number; result?: unknown; error?: { code: ErrorCode }; event?: string; payload?: Progress }) => {
       if (msg.event === 'progress' && msg.payload) return this.onProgress(msg.payload);
       const w = msg.id === undefined ? undefined : this.waiting.get(msg.id);

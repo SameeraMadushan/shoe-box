@@ -1,20 +1,9 @@
 import { Menu, nativeImage, Tray } from 'electron';
-import { encodePng } from '../../shared/png';
+import markPath from '../../renderer/assets/mark.png?asset';
 
-/** Draws the app mark (a chat bubble) so no image asset is needed. */
 function trayIcon(): Electron.NativeImage {
-  const size = 32;
-  const mac = process.platform === 'darwin';
-  const png = encodePng(size, size, (x, y) => {
-    const inBubble = x >= 4 && x < 28 && y >= 6 && y < 22;
-    const inTail = y >= 22 && y < 27 && x >= 6 && x < 6 + (27 - y);
-    const on = inBubble || inTail;
-    // Template image (black + alpha) on macOS; accent-text colour elsewhere.
-    return mac ? [0, 0, 0, on ? 255 : 0] : [0x8f, 0xb0, 0xff, on ? 255 : 0];
-  });
-  const image = nativeImage.createFromBuffer(png, { scaleFactor: 2 });
-  image.setTemplateImage(mac);
-  return image;
+  // 18 pt is the macOS menu bar size; Windows scales its tray icons itself.
+  return nativeImage.createFromPath(markPath).resize({ width: process.platform === 'darwin' ? 18 : 32, quality: 'best' });
 }
 
 export interface TrayActions {
@@ -25,11 +14,11 @@ export interface TrayActions {
 
 export function createTray(actions: TrayActions): { setStatus(line: string): void } {
   const tray = new Tray(trayIcon());
-  tray.setToolTip('Chat Archive');
+  tray.setToolTip('Shoebox');
   const setStatus = (line: string) => {
     tray.setContextMenu(
       Menu.buildFromTemplate([
-        { label: 'Open Chat Archive', click: actions.open },
+        { label: 'Open Shoebox', click: actions.open },
         { label: 'Back up now', click: actions.backupNow },
         { label: line, enabled: false },
         { type: 'separator' },
