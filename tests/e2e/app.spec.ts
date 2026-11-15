@@ -340,7 +340,7 @@ test('optional setting deletes the iPhone backup after the chats are extracted',
   const guide = page.getByRole('dialog', { name: 'Restoring an iPhone from the backup' });
   await expect(guide.getByRole('alert')).toContainText('no backup is kept to restore from');
   await expect(guide).toContainText('A restore replaces everything on the iPhone');
-  await expect(guide).toContainText('mock-data/backup');
+  await expect(guide).toContainText(join('mock-data', 'backup'));
   await button(page, 'Close').click();
   // The chat archive itself is untouched.
   expect(existsSync(archive)).toBe(true);
