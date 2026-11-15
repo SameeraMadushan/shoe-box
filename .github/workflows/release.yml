@@ -42,23 +42,42 @@ jobs:
         run: |
           brew install libimobiledevice
           echo "VENDOR_TOOLS_DIR=$(brew --cellar)" >> "$GITHUB_ENV"
-      - name: Install the device tools (Windows, MSYS2)
+      - name: Set up MSYS2 (Windows)
         if: matrix.target == 'win32-x64'
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
           update: true
-          install: mingw-w64-ucrt-x86_64-libimobiledevice
-      - name: Stage the device tools with the DLLs they load (Windows)
+          install: >-
+            make diffutils
+            mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-pkgconf
+            mingw-w64-ucrt-x86_64-openssl mingw-w64-ucrt-x86_64-curl
+            mingw-w64-ucrt-x86_64-libplist mingw-w64-ucrt-x86_64-libimobiledevice-glue mingw-w64-ucrt-x86_64-libusbmuxd
+      # MSYS2 only packages libimobiledevice 1.3.0, so 1.4.0 is built from its release tarball
+      # against MSYS2's libraries.
+      - name: Build the device tools and stage them with the DLLs they load (Windows)
         if: matrix.target == 'win32-x64'
         shell: msys2 {0}
         run: |
           stage="$(cygpath -u "$RUNNER_TEMP")/device-tools"
           mkdir -p "$stage/licenses"
+          cd "$(cygpath -u "$RUNNER_TEMP")"
+          build() {
+            local name=$1 version=$2 sha256=$3; shift 3
+            curl -sSLO "https://github.com/libimobiledevice/$name/releases/download/$version/$name-$version.tar.bz2"
+            echo "$sha256 *$name-$version.tar.bz2" | sha256sum -c -
+            tar -xjf "$name-$version.tar.bz2"
+            (cd "$name-$version" && ./configure --prefix=/ucrt64 "$@" && make -j4 && make install)
+            echo "$name $version (built from the release tarball)" >> "$stage/PACKAGES.txt"
+          }
+          build libtatsu 1.1.1 18f471f131c1d55ccc02fa09565d870030c6ce92f737b89fe1b3849941ebb303
+          build libimobiledevice 1.4.0 23cc0077e221c7d991bd0eb02150a0d49199bcca1ddf059edccee9ffd914939d --without-cython
+
           for tool in idevice_id idevicepair ideviceinfo idevicebackup2; do cp "/ucrt64/bin/$tool.exe" "$stage/"; done
           ldd "$stage"/*.exe | awk '$3 ~ /^\/ucrt64\// { print $3 }' | sort -u | xargs cp -t "$stage"
           # Ship each MSYS2 package's own licence files and record the exact versions.
-          for file in "$stage"/*.exe "$stage"/*.dll; do pacman -Qqo "/ucrt64/bin/$(basename "$file")"; done | sort -u > "$stage/packages"
+          # (The two libraries built above belong to no package; LGPL-2.1 already ships with the app.)
+          for file in "$stage"/*.dll; do pacman -Qqo "/ucrt64/bin/$(basename "$file")" 2>/dev/null || true; done | sort -u > "$stage/packages"
           while read -r pkg; do
             pacman -Q "$pkg" >> "$stage/PACKAGES.txt"
             pacman -Qlq "$pkg" | { grep '/share/licenses/.*[^/]$' || true; } | while read -r f; do
@@ -67,6 +86,7 @@ jobs:
           done < "$stage/packages"
           rm "$stage/packages"
           cat "$stage/PACKAGES.txt"
+          ls -R "$stage"
           echo "VENDOR_TOOLS_DIR=$(cygpath -w "$stage")" >> "$(cygpath -u "$GITHUB_ENV")"
 
       - run: npm run licenses
