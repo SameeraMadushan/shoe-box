@@ -6,14 +6,14 @@ import { join } from 'node:path';
 export const newUserData = (): string => mkdtempSync(join(tmpdir(), 'chat-archive-e2e-'));
 
 /** Launches the built app in mock mode with its own throwaway profile. */
-export async function launch(options: { flags?: string; userData?: string } = {}): Promise<{ app: ElectronApplication; page: Page; userData: string }> {
+export async function launch(options: { flags?: string; userData?: string; speed?: number } = {}): Promise<{ app: ElectronApplication; page: Page; userData: string }> {
   const userData = options.userData ?? newUserData();
   const app = await electron.launch({
     args: ['.'],
     env: {
       ...(process.env as Record<string, string>),
       CHAT_ARCHIVE_MOCK: '1',
-      CHAT_ARCHIVE_MOCK_SPEED: '25',
+      CHAT_ARCHIVE_MOCK_SPEED: String(options.speed ?? 25),
       CHAT_ARCHIVE_MOCK_FLAGS: options.flags ?? '',
       CHAT_ARCHIVE_USER_DATA: userData,
     },

@@ -32,11 +32,20 @@ export type AttemptResult = { ok: true } | { ok: false; code: ErrorCode };
 
 export class BackupRunner {
   private active = false;
+  private abort: AbortController | null = null;
 
   constructor(private readonly deps: RunnerDeps) {}
 
   isRunning(): boolean {
     return this.active;
+  }
+
+  /**
+   * Stops the run while the iPhone is being copied. Once extraction has started the
+   * run is left to finish: it is short, and stopping mid-import gains nothing.
+   */
+  cancel(): void {
+    this.abort?.abort();
   }
 
   /** Picks the transport: network first when Wi-Fi sync is on, then USB. The first backup is always USB. */
@@ -58,6 +67,7 @@ export class BackupRunner {
     this.active = true;
     const { deps } = this;
     const started = Date.now();
+    const abort = (this.abort = new AbortController());
     // Keep the computer awake for the duration of the run (scheduler rule 8).
     const blocker = powerSaveBlocker.start('prevent-app-suspension');
     const progress = (phase: number, percent: number) => deps.onRun({ trigger, phase, percent: Math.round(percent) });
@@ -74,7 +84,8 @@ export class BackupRunner {
       // idevicebackup2 refuses a backup directory that does not exist yet.
       await mkdir(backupRoot, { recursive: true, mode: 0o700 });
       progress(0, 0);
-      await deps.device.backup(device, backupRoot, (p) => progress(0, p * 0.55));
+      await deps.device.backup(device, backupRoot, (p) => progress(0, p * 0.55), abort.signal);
+      this.abort = null; // past the point where stopping is possible
       progress(1, 55);
 
       let runId: number;
@@ -108,6 +119,7 @@ export class BackupRunner {
       return { ok: false, code };
     } finally {
       powerSaveBlocker.stop(blocker);
+      this.abort = null;
       this.active = false;
       deps.onRun(null);
       await deps.onFinished(ok);

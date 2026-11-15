@@ -13,6 +13,8 @@ export interface Api {
   submitPassword(password: string): { ok: true } | { ok: false; error: ErrorCode };
   preflight(): Preflight;
   backupNow(): void;
+  /** Stops the running backup while the iPhone is still being copied. */
+  cancelBackup(): void;
   finishOnboarding(): void;
   restartOnboarding(): void;
   updateSettings(patch: Partial<Pick<Settings, EditableSetting>>): void;
@@ -46,6 +48,7 @@ const channelMap: Record<keyof Api, true> = {
   submitPassword: true,
   preflight: true,
   backupNow: true,
+  cancelBackup: true,
   finishOnboarding: true,
   restartOnboarding: true,
   updateSettings: true,

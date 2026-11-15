@@ -31,6 +31,6 @@ export interface DeviceService {
   readonly canEnableWifi: boolean;
   /** Bytes in use on the phone: the estimate for the first backup's size. */
   usedBytes(device: Device): Promise<number>;
-  /** Backs up into `<backupRoot>/<udid>/`, reporting percent complete. */
-  backup(device: Device, backupRoot: string, onProgress: (percent: number) => void): Promise<void>;
+  /** Backs up into `<backupRoot>/<udid>/`, reporting percent complete. Aborting rejects with INTERRUPTED. */
+  backup(device: Device, backupRoot: string, onProgress: (percent: number) => void, signal: AbortSignal): Promise<void>;
 }

@@ -40,9 +40,17 @@ function StatusCard({ app }: { app: AppState }) {
             {app.nextBackupAt ? `Next backup: ${whenAt(app.nextBackupAt / 1000)}` : 'Automatic backups are off'}
           </span>
         </div>
-        <button className="btn" disabled={running} onClick={() => void window.api.backupNow()}>
-          {running ? 'Backing up…' : failed ? 'Retry now' : 'Back up now'}
-        </button>
+        <div className="row gap12 wrap">
+          {running && (
+            // Stopping is possible while the iPhone is being copied; extraction afterwards is short and runs to the end.
+            <button className="btn2" disabled={app.run!.phase > 0} onClick={() => void window.api.cancelBackup()}>
+              {app.run!.phase > 0 ? 'Finishing…' : 'Stop backup'}
+            </button>
+          )}
+          <button className="btn" disabled={running} onClick={() => void window.api.backupNow()}>
+            {running ? `Backing up… ${app.run!.percent}%` : failed ? 'Retry now' : 'Back up now'}
+          </button>
+        </div>
       </div>
       {running && (
         <div className="progress thin" role="progressbar" aria-label="Backup progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={app.run!.percent}>
@@ -232,7 +240,10 @@ function Drive({ app }: { app: AppState }) {
 }
 
 function Storage({ app }: { app: AppState }) {
-  const { backupBytes, mediaBytes, dbBytes } = app.storage;
+  const { backupBytes, mediaBytes, dbBytes, freeBytes } = app.storage;
+  const phone = app.settings.phoneUsedBytes;
+  // A full backup is about the size of what is on the phone; later backups only add what changed.
+  const stillNeeded = phone ? Math.max(0, phone - backupBytes) : 0;
   return (
     <section className="section pad" aria-label="Storage on this computer">
       <div className="row between gap12 wrap" style={{ alignItems: 'baseline' }}>
@@ -258,6 +269,34 @@ function Storage({ app }: { app: AppState }) {
           Chat archive database · {bytes(dbBytes)}
         </span>
       </div>
+      {(freeBytes > 0 || phone) && (
+        <div className="tiles" data-testid="space">
+          {freeBytes > 0 && (
+            <div className="cond">
+              <strong>{bytes(freeBytes)}</strong>Free on this disk
+            </div>
+          )}
+          {phone ? (
+            <div className="cond">
+              <strong>About {bytes(phone)}</strong>Needed for a full iPhone backup
+            </div>
+          ) : null}
+          {phone ? (
+            <div className="cond">
+              <strong className={freeBytes > 0 && stillNeeded > freeBytes ? 'bad-text' : ''}>
+                {stillNeeded > 0 ? `About ${bytes(stillNeeded)}` : 'Nothing more'}
+              </strong>
+              Still to copy before the backup is complete
+            </div>
+          ) : null}
+        </div>
+      )}
+      {phone && freeBytes > 0 && stillNeeded > freeBytes ? (
+        <div className="warn" role="alert">
+          <Warning />
+          <span>There is not enough free space to finish the backup. Free up about {bytes(stillNeeded - freeBytes)}, or change the location.</span>
+        </div>
+      ) : null}
       <div className="row between gap12 wrap" style={{ borderTop: '1px solid var(--border)', paddingTop: 12 }}>
         <span className="text2" style={{ fontSize: 14 }}>
           Location: {app.settings.dataDir}

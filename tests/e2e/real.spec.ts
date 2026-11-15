@@ -1,5 +1,6 @@
 // The real (non-mock) services, as far as they can go without an iPhone.
 import { _electron as electron, expect, test } from '@playwright/test';
+import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { button, newUserData } from './helpers';
@@ -8,6 +9,8 @@ const vendor = join(__dirname, '../../vendor', `${process.platform}-${process.ar
 
 test('real mode starts, runs the bundled device tool, and finds no iPhone', async () => {
   test.skip(!existsSync(vendor), 'run "npm run vendor" first');
+  // This test expects no phone, and must not poke at one that is busy with a real backup.
+  test.skip(execFileSync(join(vendor, 'idevice_id'), ['-l'], { encoding: 'utf8' }).trim() !== '', 'an iPhone is connected');
   const userData = newUserData();
   const app = await electron.launch({
     args: ['.'],

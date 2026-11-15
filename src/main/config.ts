@@ -33,5 +33,6 @@ export function defaultSettings(userData: string): Settings {
     lastScreen: 'chats',
     lastChatId: null,
     lastHandledDue: 0,
+    phoneUsedBytes: null,
   };
 }

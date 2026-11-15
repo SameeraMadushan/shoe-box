@@ -254,6 +254,11 @@ function Wifi() {
   const [check, setCheck] = useState<Preflight | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // Measure up front so the space needed is on screen before the backup starts.
+  useEffect(() => {
+    void window.api.preflight().then(setCheck);
+  }, []);
+
   async function start() {
     setBusy(true);
     const result = await window.api.preflight();
@@ -286,6 +291,12 @@ function Wifi() {
         <span>Your iPhone is on the same Wi-Fi network</span>
         <span>Your iPhone is charging (recommended, not required)</span>
       </div>
+      {check && check.ok && check.requiredBytes > 0 && (
+        <p className="text2" data-testid="space-needed">
+          The first backup needs about <strong>{bytes(check.requiredBytes)}</strong> of disk space. <strong>{bytes(check.availableBytes)}</strong> is
+          free on this computer.
+        </p>
+      )}
       {check && !check.ok && (
         <div className="warn" role="alert">
           <Warning />
@@ -323,6 +334,7 @@ function Sync() {
       <h1>{done ? 'First backup finished' : 'First backup in progress'}</h1>
       <p className="text2">
         Keep the cable connected. The first backup copies your whole iPhone and can take a while. Later backups only copy what changed.
+        {app.settings.phoneUsedBytes ? ` It needs about ${bytes(app.settings.phoneUsedBytes)} of disk space.` : ''}
       </p>
       <div className="col gap8">
         <div className="row between strong">
@@ -357,7 +369,12 @@ function Sync() {
           )}
         </ErrorPanel>
       )}
-      <div>
+      <div className="row gap12 wrap">
+        {app.run && (
+          <button className="btn2" disabled={app.run.phase > 0} onClick={() => void window.api.cancelBackup()}>
+            {app.run.phase > 0 ? 'Finishing…' : 'Stop backup'}
+          </button>
+        )}
         <button className="btn" disabled={!done} onClick={() => go('done')}>
           Continue
         </button>

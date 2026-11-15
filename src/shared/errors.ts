@@ -58,8 +58,8 @@ export const ERROR_COPY: Record<ErrorCode, { sentence: string; action: string }>
     action: 'Install the Apple Devices app, then retry.',
   },
   INTERRUPTED: {
-    sentence: 'The backup was interrupted.',
-    action: 'Keep your iPhone connected and retry.',
+    sentence: 'The backup was stopped before it finished.',
+    action: 'Keep your iPhone connected and retry. The next backup continues from what was already copied.',
   },
   UNSUPPORTED_DATA: {
     sentence: 'The chat data in this backup could not be read. This version of the chat app is not supported yet.',

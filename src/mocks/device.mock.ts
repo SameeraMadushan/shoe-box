@@ -49,7 +49,7 @@ export class MockDeviceService implements DeviceService {
     return mockFlag('lowdisk') ? 1e18 : 38.2e9;
   }
 
-  async backup(_device: Device, _root: string, onProgress: (percent: number) => void): Promise<void> {
+  async backup(_device: Device, _root: string, onProgress: (percent: number) => void, signal: AbortSignal): Promise<void> {
     const first = !this.onboarded && this.backups === 0;
     this.backups++;
     if (!first && this.failNext) {
@@ -59,6 +59,7 @@ export class MockDeviceService implements DeviceService {
     const steps = first ? 40 : 10;
     for (let i = 1; i <= steps; i++) {
       await sleep(110);
+      if (signal.aborted) throw new AppError('INTERRUPTED');
       onProgress((i / steps) * 100);
     }
   }

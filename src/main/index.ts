@@ -88,7 +88,7 @@ async function main(): Promise<void> {
     history: [],
     nextBackupAt: null,
     drive: { status: 'off', recoveryKey: null, syncPercent: 0 },
-    storage: { backupBytes: 0, mediaBytes: 0, dbBytes: 0 },
+    storage: { backupBytes: 0, mediaBytes: 0, dbBytes: 0, freeBytes: 0 },
     stats: { chats: 0, messages: 0, media: 0 },
   };
 
@@ -117,6 +117,14 @@ async function main(): Promise<void> {
     send('state', state);
   }
 
+  /** Free space on the disk that holds (or will hold) a folder. */
+  async function freeBytes(dir: string): Promise<number> {
+    let probe = dir;
+    while (!existsSync(probe)) probe = dirname(probe);
+    const fs = await statfs(probe);
+    return fs.bavail * fs.bsize;
+  }
+
   async function refreshArchive(): Promise<void> {
     const [history, stats] = await Promise.all([worker.call('history'), worker.call('stats')]);
     push({ history, stats });
@@ -125,7 +133,10 @@ async function main(): Promise<void> {
       !last ? 'No backup yet' : last.status === 'failed' ? 'Last backup failed' : `Last backup: ${new Date(last.startedAt * 1000).toLocaleString()}`,
     );
     // Sizing the backup folder can take a while; do not hold the UI for it.
-    void worker.call('storage', join(settings.get().dataDir, 'backup')).then((storage) => push({ storage })).catch(() => {});
+    const dataDir = settings.get().dataDir;
+    void Promise.all([worker.call('storage', join(dataDir, 'backup')), freeBytes(dataDir)])
+      .then(([sizes, free]) => push({ storage: { ...sizes, freeBytes: free } }))
+      .catch(() => {});
   }
 
   // --- backup runs and scheduling ---
@@ -216,6 +227,7 @@ async function main(): Promise<void> {
     if (quitting) app.quit(); // otherwise keep running in the tray
   });
   app.on('will-quit', () => {
+    runner.cancel(); // never leave the backup tool running without the app
     scheduler.stop();
     worker.kill();
   });
@@ -298,19 +310,18 @@ async function main(): Promise<void> {
       }
     },
     async preflight() {
-      const dataDir = settings.get().dataDir;
-      let probe = dataDir;
-      while (!existsSync(probe)) probe = dirname(probe);
-      const fs = await statfs(probe);
-      const availableBytes = fs.bavail * fs.bsize;
+      const availableBytes = await freeBytes(settings.get().dataDir);
       // The first backup needs about as much space as is used on the phone.
       const requiredBytes = currentDevice ? await device.usedBytes(currentDevice).catch(() => 0) : 0;
+      if (requiredBytes > 0) settings.update({ phoneUsedBytes: requiredBytes });
+      push({ storage: { ...state.storage, freeBytes: availableBytes } });
       return { ok: availableBytes > requiredBytes, requiredBytes, availableBytes };
     },
     backupNow: () => {
       // While a run is active the UI simply shows it (scheduler rule 5).
       if (!runner.isRunning()) void runner.attempt(settings.get().onboarded ? 'manual' : 'first', true);
     },
+    cancelBackup: () => runner.cancel(),
     finishOnboarding: () => {
       stopTimers();
       settings.update({ onboarded: true });

@@ -100,9 +100,13 @@ export class ToolDeviceService implements DeviceService {
     return Number.isFinite(used) && used > 0 ? used : 0;
   }
 
-  backup(device: Device, backupRoot: string, onProgress: (percent: number) => void): Promise<void> {
+  backup(device: Device, backupRoot: string, onProgress: (percent: number) => void, signal: AbortSignal): Promise<void> {
     return new Promise((resolve, reject) => {
       const child = spawn(this.bin('idevicebackup2'), [...this.target(device), 'backup', backupRoot], { windowsHide: true });
+      // SIGINT is the tool's own "abort requested" path: it tells the phone and exits cleanly.
+      const stop = () => child.kill('SIGINT');
+      signal.addEventListener('abort', stop, { once: true });
+      if (signal.aborted) stop();
       let tail = '';
       const onData = (data: Buffer) => {
         const text = data.toString('utf8');
@@ -116,6 +120,8 @@ export class ToolDeviceService implements DeviceService {
         reject(new AppError('UNKNOWN', (e as NodeJS.ErrnoException).code === 'ENOENT' ? 'Device tools are not installed in this build' : undefined));
       });
       child.on('close', (code) => {
+        signal.removeEventListener('abort', stop);
+        if (signal.aborted) return reject(new AppError('INTERRUPTED'));
         if (code === 0 && /Backup Successful/.test(tail)) return resolve();
         try {
           this.fail('idevicebackup2', { code: code ?? 1, out: tail });

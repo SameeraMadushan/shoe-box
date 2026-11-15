@@ -24,6 +24,8 @@ export interface Settings {
   lastChatId: number | null;
   /** Start (ms) of the scheduled slot the scheduler has already dealt with. */
   lastHandledDue: number;
+  /** Space in use on the iPhone when last measured: the size a full backup needs. */
+  phoneUsedBytes: number | null;
 }
 
 export interface RunSummary {
@@ -72,7 +74,7 @@ export interface AppState {
   history: RunSummary[];
   nextBackupAt: number | null;
   drive: { status: DriveStatus; recoveryKey: string | null; syncPercent: number };
-  storage: { backupBytes: number; mediaBytes: number; dbBytes: number };
+  storage: { backupBytes: number; mediaBytes: number; dbBytes: number; /** Free space on the disk holding the archive. */ freeBytes: number };
   stats: { chats: number; messages: number; media: number };
 }
 

@@ -263,3 +263,38 @@ test('a 200,000-message chat opens on the newest message and pages while scrolli
   await page.getByLabel('Search chats and messages').fill('#123456');
   await expect(page.locator('[data-hit]')).toHaveText(/#123456/);
 });
+
+test('a running backup can be stopped, and the space it needs is shown', async () => {
+  // Slower mock timings, so there is time to press Stop.
+  const s = await launch({ speed: 3 });
+  app = s.app;
+  const { page } = s;
+  await toPasswordStep(page);
+  await page.getByLabel('Backup password').fill('abcd');
+  await page.getByLabel('Type it again').fill('abcd');
+  await button(page, 'Save password').click();
+  await expect(page.getByTestId('space-needed')).toContainText('needs about 38.2 GB');
+  await button(page, 'Start first backup').click();
+
+  await button(page, 'Stop backup').click();
+  await expect(page.getByRole('alert')).toContainText('The backup was stopped before it finished.');
+  await expect(button(page, 'Stop backup')).toHaveCount(0);
+  await button(page, 'Try again').click();
+  await expect(page.getByRole('heading', { name: 'First backup finished' })).toBeVisible({ timeout: 30_000 });
+  await button(page, 'Continue').click();
+  await button(page, 'Open my chats').click();
+
+  await button(page, 'Backup and settings').click();
+  await expect(page.getByTestId('history-row')).toHaveCount(2);
+  await expect(page.getByTestId('history-row').nth(1)).toContainText('stopped before it finished');
+  const space = page.getByTestId('space');
+  await expect(space).toContainText('Free on this disk');
+  await expect(space).toContainText('About 38.2 GB');
+  await expect(space).toContainText('Still to copy before the backup is complete');
+
+  // From the Backup screen too.
+  await button(page, 'Back up now').click();
+  await button(page, 'Stop backup').click();
+  await expect(page.getByTestId('status-title')).toHaveText('Last backup failed');
+  await expect(button(page, 'Retry now')).toBeEnabled();
+});
