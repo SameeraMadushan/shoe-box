@@ -1,14 +1,24 @@
-# Builds the installer on a version tag and attaches it to a draft GitHub release.
+# Builds the installers on a version tag and attaches them to a draft GitHub release.
+# A manual run builds them without releasing.
 # Build infrastructure only; not part of the app's offline guarantee (ADR section 11).
 name: Release
 on:
   push:
     tags: ['v*']
+    branches: ['ci/**']
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
-  mac:
-    runs-on: macos-latest
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest, target: darwin-arm64, builder: '--mac dmg:arm64' }
+          - { os: macos-15-intel, target: darwin-x64, builder: '--mac dmg:x64' }
+          - { os: windows-latest, target: win32-x64, builder: '--win nsis:x64' }
+    runs-on: ${{ matrix.os }}
     env:
       GOOGLE_OAUTH_CLIENT_ID: ${{ vars.GOOGLE_OAUTH_CLIENT_ID }}
       GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
@@ -19,14 +29,70 @@ jobs:
           node-version: 24
           cache: npm
       - name: Tag must match the package.json version
+        if: github.ref_type == 'tag'
+        shell: bash
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
       - run: npm ci
+
+      # Apple silicon takes the device tools from pinned Homebrew bottles (vendor.lock.json).
+      # The other two platforms have none, so the tools are installed here and handed to
+      # scripts/fetch-vendor.ts through VENDOR_TOOLS_DIR.
+      - name: Install the device tools (Intel Mac, Homebrew)
+        if: matrix.target == 'darwin-x64'
+        run: |
+          brew install libimobiledevice
+          echo "VENDOR_TOOLS_DIR=$(brew --cellar)" >> "$GITHUB_ENV"
+      - name: Install the device tools (Windows, MSYS2)
+        if: matrix.target == 'win32-x64'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-libimobiledevice
+      - name: Stage the device tools with the DLLs they load (Windows)
+        if: matrix.target == 'win32-x64'
+        shell: msys2 {0}
+        run: |
+          stage="$(cygpath -u "$RUNNER_TEMP")/device-tools"
+          mkdir -p "$stage/licenses"
+          for tool in idevice_id idevicepair ideviceinfo idevicebackup2; do cp "/ucrt64/bin/$tool.exe" "$stage/"; done
+          ldd "$stage"/*.exe | awk '$3 ~ /^\/ucrt64\// { print $3 }' | sort -u | xargs cp -t "$stage"
+          # Ship each MSYS2 package's own licence files and record the exact versions.
+          for file in "$stage"/*.exe "$stage"/*.dll; do pacman -Qqo "/ucrt64/bin/$(basename "$file")"; done | sort -u > "$stage/packages"
+          while read -r pkg; do
+            pacman -Q "$pkg" >> "$stage/PACKAGES.txt"
+            pacman -Qlq "$pkg" | { grep '/share/licenses/.*[^/]$' || true; } | while read -r f; do
+              install -D "$f" "$stage/licenses/${f#*/share/licenses/}"
+            done
+          done < "$stage/packages"
+          rm "$stage/packages"
+          cat "$stage/PACKAGES.txt"
+          echo "VENDOR_TOOLS_DIR=$(cygpath -w "$stage")" >> "$(cygpath -u "$GITHUB_ENV")"
+
       - run: npm run licenses
-      - run: npx tsx scripts/fetch-vendor.ts darwin-arm64
+      - run: npx tsx scripts/fetch-vendor.ts ${{ matrix.target }}
       - run: npx electron-vite build
-      # Apple silicon only: the device tools for Intel Macs and Windows cannot be fetched
-      # (docs/vendor-tools.md), so those installers would not be able to reach an iPhone.
-      - run: npx electron-builder --mac dmg:arm64 --publish never
-      - run: gh release create "$GITHUB_REF_NAME" dist/*.dmg --draft --generate-notes
+      - name: The built app starts and runs the bundled device tool
+        if: runner.os == 'macOS'
+        run: npx playwright test tests/e2e/real.spec.ts
+      - run: npx electron-builder ${{ matrix.builder }} --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.target }}
+          path: |
+            dist/*.dmg
+            dist/*.exe
+          if-no-files-found: error
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - run: gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --draft --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}

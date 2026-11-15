@@ -1,6 +1,7 @@
 {
   "note": "Pinned third-party tool binaries. scripts/fetch-vendor.ts downloads these and refuses any file whose SHA-256 differs.",
   "tools": ["idevice_id", "idevicepair", "ideviceinfo", "idevicebackup2"],
+  "toolsVersion": "1.4.0",
   "platforms": {
     "darwin-arm64": {
       "bottles": [

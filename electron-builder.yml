@@ -3,6 +3,7 @@ productName: Shoebox
 copyright: Copyright © 2026 Shoebox contributors
 directories:
   output: dist
+artifactName: ${productName}-${version}-${os}-${arch}.${ext}
 files:
   - out/**
   - package.json
