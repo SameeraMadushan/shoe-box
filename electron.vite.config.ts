@@ -12,6 +12,8 @@ export default defineConfig({
   main: {
     define,
     build: {
+      // plist is ESM-only; bundle it into the CommonJS main output.
+      externalizeDeps: { exclude: ['plist'] },
       rollupOptions: {
         input: { index: resolve('src/main/index.ts'), worker: resolve('src/worker/index.ts') },
       },
@@ -22,7 +24,19 @@ export default defineConfig({
   },
   renderer: {
     root: 'src/renderer',
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        // Vite's dev server needs inline scripts/styles and its websocket; production keeps the strict policy.
+        name: 'dev-csp',
+        apply: 'serve',
+        transformIndexHtml: (html) =>
+          html
+            .replace("script-src 'self'", "script-src 'self' 'unsafe-inline'")
+            .replace("style-src 'self'", "style-src 'self' 'unsafe-inline'")
+            .replace("connect-src 'none'", "connect-src 'self' ws://localhost:*"),
+      },
+    ],
     build: { rollupOptions: { input: resolve('src/renderer/index.html') } },
   },
 });

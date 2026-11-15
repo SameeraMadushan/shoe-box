@@ -1,0 +1,36 @@
+/* Theme tokens from ADR section 10. */
+:root {
+  --bg: #0f1420;
+  --surface: #171d2b;
+  --conversation-bg: #0c111b;
+  --rail: #0b0f18;
+  --border: #283044;
+  --border-strong: #3a445c;
+  --field-border: #5a6680;
+  --text: #e8ecf4;
+  --text-2: #c2c9d6;
+  --muted: #98a2b5;
+  --accent: #2456d6;
+  --accent-hover: #1a3fa3;
+  --accent-text: #8fb0ff;
+  --bubble-out: #23408a;
+  --bubble-out-border: #2f4a8f;
+  --bubble-in: #1c2333;
+  --row-active: #1b2a4d;
+  --success: #5fd39a;
+  --success-bg: #12301f;
+  --success-border: #2c6b48;
+  --danger: #ff8f85;
+  --danger-border: #7a2f29;
+  --warn-text: #ffd79a;
+  --warn-bg: #3a2a10;
+  --warn-border: #7a5a22;
+  --warn-icon: #f2b25c;
+  --search-ring: #e08a00;
+  --info-text: #c9d8ff;
+  --toggle-off: #6b7385;
+  --disabled-bg: #2a3142;
+  --disabled-text: #a9b2c3;
+  --font: Inter, system-ui, sans-serif;
+  --font-head: 'Space Grotesk', Inter, sans-serif;
+}
