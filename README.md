@@ -69,8 +69,9 @@ npm run vendor   # downloads the pinned device tools and rclone, checks SHA-256
 npm run dev
 ```
 
-Device tools are fetched automatically for Apple silicon Macs only. For Intel Macs
-and Windows see `docs/vendor-tools.md`. On Windows you also need the Apple Devices app
+On your own machine, device tools are fetched automatically for Apple silicon Macs
+only. For Intel Macs and Windows see `docs/vendor-tools.md`; the release workflow
+builds them for all three platforms. On Windows you also need the Apple Devices app
 from the Microsoft Store (it provides the iPhone drivers).
 
 ## Build an installer

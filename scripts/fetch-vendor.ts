@@ -4,9 +4,10 @@
 //
 //   npm run vendor                 # this machine's platform
 //   npm run vendor -- darwin-x64   # another platform (rclone only where tools need a manual build)
+//   VENDOR_TOOLS_DIR=... npm run vendor   # platforms without pinned bottles: take the tools from a local build
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { chmodSync, copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 
 interface Pinned {
@@ -22,7 +23,7 @@ interface Platform {
 }
 
 const root = resolve(__dirname, '..');
-const lock = JSON.parse(readFileSync(join(root, 'vendor.lock.json'), 'utf8')) as { tools: string[]; platforms: Record<string, Platform> };
+const lock = JSON.parse(readFileSync(join(root, 'vendor.lock.json'), 'utf8')) as { tools: string[]; toolsVersion: string; platforms: Record<string, Platform> };
 const target = process.argv[2] ?? `${process.platform}-${process.arch}`;
 const platform = lock.platforms[target];
 if (!platform) {
@@ -48,22 +49,30 @@ function walk(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]));
 }
 
-/** macOS: copy tools and dylibs out of the bottles and point their load paths at each other. */
+/** macOS: copy tools and dylibs out of the bottles (or a Homebrew Cellar) and point their load paths at each other. */
 function assembleMac(bottleDir: string): void {
   const files = walk(bottleDir);
   const libDir = join(outDir, 'lib');
   mkdirSync(libDir, { recursive: true });
   const placed: string[] = [];
+  // "name version" of every formula a file was taken from, read off .../<name>/<version>/{bin,lib}/<file>.
+  const packages = new Set<string>();
+  const take = (src: string, dest: string) => {
+    const real = realpathSync(src);
+    const from = /([^/]+)\/([^/]+)\/(?:bin|lib)\/[^/]+$/.exec(real);
+    if (from) packages.add(`${from[1]} ${from[2]}`);
+    copyFileSync(real, dest);
+    placed.push(dest);
+  };
   for (const tool of lock.tools) {
     const src = files.find((f) => f.endsWith(`/bin/${tool}`));
     if (!src) throw new Error(`Tool ${tool} not found in the bottles`);
-    copyFileSync(src, join(outDir, tool));
-    placed.push(join(outDir, tool));
+    take(src, join(outDir, tool));
   }
   // Copy only the dylibs the tools actually load, under the names they load them by.
   const available = new Map(files.filter((f) => /\/lib\/[^/]+\.dylib$/.test(f)).map((f) => [basename(f), f]));
   const brewDeps = (file: string) =>
-    run('otool', ['-L', file]).split('\n').slice(1).map((l) => l.trim().split(' ')[0]!).filter((d) => d.includes('@@HOMEBREW'));
+    run('otool', ['-L', file]).split('\n').slice(1).map((l) => l.trim().split(' ')[0]!).filter((d) => d.includes('@@HOMEBREW') || d.startsWith('/usr/local/') || d.startsWith('/opt/homebrew/'));
   for (let i = 0; i < placed.length; i++) {
     const file = placed[i]!;
     const isLib = file.startsWith(libDir);
@@ -74,8 +83,7 @@ function assembleMac(bottleDir: string): void {
       if (!existsSync(dest)) {
         const src = available.get(name);
         if (!src) throw new Error(`${basename(file)} needs ${name}, which no pinned bottle provides`);
-        copyFileSync(realpathSync(src), dest);
-        placed.push(dest);
+        take(src, dest);
       }
       run('install_name_tool', ['-change', dep, `${isLib ? '@loader_path' : '@loader_path/lib'}/${name}`, file]);
     }
@@ -83,6 +91,7 @@ function assembleMac(bottleDir: string): void {
   }
   // Editing load commands invalidates the signature; arm64 macOS refuses unsigned code.
   for (const file of placed) run('codesign', ['--force', '--sign', '-', file]);
+  writeFileSync(join(outDir, 'PACKAGES.txt'), [...packages].sort().join('\n') + '\n');
 }
 
 async function main(): Promise<void> {
@@ -102,18 +111,33 @@ async function main(): Promise<void> {
       console.log(`verified ${bottle.name} ${bottle.version}`);
     }
     assembleMac(bottleDir);
-    if (target === `${process.platform}-${process.arch}`) {
-      console.log(`idevice_id runs: ${run(join(outDir, 'idevice_id'), ['--version']).trim()}`);
-    }
+  } else if (process.env.VENDOR_TOOLS_DIR) {
+    // No pinned bottles: the release workflow builds or installs the tools and points here.
+    const dir = resolve(process.env.VENDOR_TOOLS_DIR);
+    if (target.startsWith('darwin')) assembleMac(dir);
+    else cpSync(dir, outDir, { recursive: true });
   } else {
     // TODO(vendor): the device tools for this platform need a manual build.
     console.warn(`\nDEVICE TOOLS NOT FETCHED for ${target}: ${platform!.todo}\n`);
   }
 
+  const ext = target.startsWith('win32') ? '.exe' : '';
+  if (existsSync(join(outDir, `idevice_id${ext}`))) {
+    for (const tool of lock.tools) {
+      if (!existsSync(join(outDir, tool + ext))) throw new Error(`Tool ${tool} is missing for ${target}`);
+      // Running each tool from its final folder proves it finds its libraries there.
+      if (target !== `${process.platform}-${process.arch}`) continue;
+      const version = run(join(outDir, tool + ext), ['--version']).trim();
+      // The output parsers are written against this version.
+      if (!version.includes(lock.toolsVersion)) throw new Error(`${tool} is "${version}", expected ${lock.toolsVersion}`);
+      console.log(`${tool} runs: ${version}`);
+    }
+  }
+
   const zip = join(work, 'rclone.zip');
   await download(platform!.rclone, zip);
   run(process.platform === 'win32' ? 'tar' : 'unzip', process.platform === 'win32' ? ['-xf', zip, '-C', work] : ['-q', zip, '-d', work]);
-  const exe = target.startsWith('win32') ? 'rclone.exe' : 'rclone';
+  const exe = `rclone${ext}`;
   const rclone = walk(work).find((f) => basename(f) === exe);
   if (!rclone) throw new Error('rclone binary not found in its archive');
   copyFileSync(rclone, join(outDir, exe));

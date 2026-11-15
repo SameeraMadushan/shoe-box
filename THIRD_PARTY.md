@@ -24,6 +24,14 @@ bottles. The only change made to them is to their library load paths (so they fi
 the libraries shipped beside them) and an ad-hoc code signature, which macOS requires
 after that change. The code is otherwise unmodified.
 
+On macOS (Intel) the same binaries come from Homebrew's x86_64 bottles, installed by
+the release workflow, with the same two changes. On Windows the tools, libimobiledevice
+1.4.0 and libtatsu are built unmodified from their release tarballs with MSYS2, and
+libplist, libimobiledevice-glue, libusbmuxd and OpenSSL are MSYS2's UCRT64 packages
+(sources: https://packages.msys2.org). Library versions on these two platforms can
+differ from the table; the versions shipped are listed in `PACKAGES.txt` inside the
+app's `bin` folder.
+
 Exact download URLs and SHA-256 checksums are pinned in `vendor.lock.json`. The
 checksums of the files as shipped are in `SHA256SUMS.json` inside the app's `bin` folder.
 

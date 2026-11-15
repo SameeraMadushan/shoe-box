@@ -19,8 +19,8 @@ test('real mode starts, runs the bundled device tool, and finds no iPhone', asyn
   const page = await app.firstWindow();
   const state = await page.evaluate(() => window.api.getState());
   expect(state.mock).toBe(false);
-  // No OAuth client at build time: Drive sync reports "not configured".
-  expect(state.drive.status).toBe('unconfigured');
+  // Without an OAuth client at build time, Drive sync reports "not configured".
+  expect(state.drive.status).toBe(process.env.GOOGLE_OAUTH_CLIENT_ID ? 'off' : 'unconfigured');
   // idevicepair 1.4.0 cannot switch Wi-Fi syncing on, so the manual instruction is shown.
   expect(state.wifiManualSetup).toBe(true);
 
