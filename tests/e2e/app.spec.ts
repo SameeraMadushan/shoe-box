@@ -38,6 +38,10 @@ test('full onboarding, then no request has left the app with Drive off', async (
   const { page } = s;
   await expect(page.getByRole('heading', { name: 'Keep your iPhone chats on your own computer' })).toBeVisible();
   await expect(page.locator('.onb-name')).toHaveText('Shoebox');
+  // The corner tagline opens About during onboarding too.
+  await button(page, 'Free and open source').click();
+  await expect(page.getByRole('dialog', { name: 'About Shoebox' })).toContainText('Version 0.1.0');
+  await button(page, 'Close').click();
   expect(await page.locator('.onb-head img').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(160);
   await button(page, 'Get started').click();
   await expect(page.getByText('Step 1 of 6')).toBeVisible();
@@ -78,9 +82,17 @@ test('full onboarding, then no request has left the app with Drive off', async (
   expect((await page.locator('body').innerText()).toLowerCase()).not.toContain('whatsapp');
 
   await button(page, 'Backup and settings').click();
+  await button(page, 'About Shoebox').click();
+  const about = page.getByRole('dialog', { name: 'About Shoebox' });
+  await expect(about).toContainText('Version 0.1.0');
+  await expect(about).toContainText('MIT');
+  await expect(about).toContainText('github.com/SameeraMadushan/shoe-box');
   await button(page, 'Open-source licences').click();
   await expect(page.getByRole('dialog', { name: 'Open-source licences' })).toContainText('Written offer of source');
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await expect(about).toBeVisible();
   await button(page, 'Close').click();
+  await expect(about).toHaveCount(0);
 
   // Nothing was allowed out, and nothing even tried.
   const stats = await s.app.evaluate(() => (globalThis as unknown as { __networkGuardStats: unknown }).__networkGuardStats);

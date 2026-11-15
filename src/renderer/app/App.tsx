@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { About } from '../components/About';
 import { AppMark, BackupIcon, ChatsIcon } from '../components/Icons';
 import { Backup } from '../screens/backup/Backup';
 import { Chats } from '../screens/chats/Chats';
@@ -6,20 +7,29 @@ import { Onboarding } from '../screens/onboarding/Onboarding';
 import { useUi } from './store';
 
 export function App() {
-  const { app, screen, setApp, setScreen } = useUi();
+  const { app, screen, aboutOpen, setApp, setScreen } = useUi();
 
   useEffect(() => {
     void window.api.getState().then(setApp);
     const offState = window.api.on('state', setApp);
     const offNav = window.api.on('navigate', (to) => useUi.setState({ screen: to }));
+    const offAbout = window.api.on('about', () => useUi.setState({ aboutOpen: true }));
     return () => {
       offState();
       offNav();
+      offAbout();
     };
   }, [setApp]);
 
   if (!app) return null;
-  if (!app.settings.onboarded) return <Onboarding />;
+  if (!app.settings.onboarded) {
+    return (
+      <>
+        <Onboarding />
+        {aboutOpen && <About />}
+      </>
+    );
+  }
 
   const failed = app.history[0]?.status === 'failed';
   return (
@@ -39,6 +49,7 @@ export function App() {
         </button>
       </nav>
       {screen === 'chats' ? <Chats /> : <Backup />}
+      {aboutOpen && <About />}
     </div>
   );
 }

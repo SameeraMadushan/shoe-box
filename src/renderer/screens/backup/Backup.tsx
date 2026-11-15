@@ -398,7 +398,6 @@ function RestoreHelp({ app, onClose }: { app: AppState; onClose(): void }) {
 
 export function Backup() {
   const app = useApp();
-  const [licences, setLicences] = useState<string | null>(null);
   const [restoreHelp, setRestoreHelp] = useState(false);
   function restart() {
     useUi.getState().go('welcome');
@@ -425,17 +424,12 @@ export function Backup() {
           <button className="link" onClick={() => setRestoreHelp(true)}>
             Restoring an iPhone from the backup
           </button>
-          <button className="link" onClick={() => void window.api.getLicences().then(setLicences)}>
-            Open-source licences
+          <button className="link" onClick={() => useUi.setState({ aboutOpen: true })}>
+            About Shoebox
           </button>
         </div>
       </div>
       {restoreHelp && <RestoreHelp app={app} onClose={() => setRestoreHelp(false)} />}
-      {licences !== null && (
-        <Modal title="Open-source licences" onClose={() => setLicences(null)}>
-          <pre>{licences}</pre>
-        </Modal>
-      )}
     </main>
   );
 }

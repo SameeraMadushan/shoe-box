@@ -77,6 +77,7 @@ async function main(): Promise<void> {
   let pairTimer: ReturnType<typeof setInterval> | null = null;
 
   const state: AppState = {
+    version: app.getVersion(),
     platform: mockFlag('win') ? 'win32' : (process.platform as AppState['platform']),
     mock: MOCK,
     settings: settings.get(),
@@ -184,17 +185,21 @@ async function main(): Promise<void> {
 
   // --- window, tray, lifecycle ---
 
-  function showWindow(navigate?: Events['navigate']): void {
+  function showWindow(navigate?: Events['navigate'], about = false): void {
+    const deliver = () => {
+      if (navigate) send('navigate', navigate);
+      if (about) send('about', null);
+    };
     if (!win || win.isDestroyed()) {
       win = createWindow();
       // Closing the window drops the renderer to keep idle memory low; the app
       // stays in the tray and the window is recreated on demand (ADR section 3).
       win.on('closed', () => (win = null));
-      if (navigate) win.webContents.once('did-finish-load', () => send('navigate', navigate));
+      win.webContents.once('did-finish-load', deliver);
     } else {
       win.show();
       win.focus();
-      if (navigate) send('navigate', navigate);
+      deliver();
     }
   }
 
@@ -219,7 +224,27 @@ async function main(): Promise<void> {
 
   if (!app.isPackaged) app.dock?.setIcon(join(app.getAppPath(), 'build', 'icon.png'));
   Menu.setApplicationMenu(
-    Menu.buildFromTemplate([...(process.platform === 'darwin' ? [{ role: 'appMenu' as const }] : []), { role: 'editMenu' }, { role: 'windowMenu' }]),
+    Menu.buildFromTemplate([
+      // The standard macOS app menu, with our own About dialog instead of the system panel.
+      ...(process.platform === 'darwin'
+        ? [
+            {
+              label: app.name,
+              submenu: [
+                { label: `About ${app.name}`, click: () => showWindow(undefined, true) },
+                { type: 'separator' as const },
+                { role: 'hide' as const },
+                { role: 'hideOthers' as const },
+                { role: 'unhide' as const },
+                { type: 'separator' as const },
+                { role: 'quit' as const },
+              ],
+            },
+          ]
+        : []),
+      { role: 'editMenu' },
+      { role: 'windowMenu' },
+    ]),
   );
   app.on('second-instance', () => showWindow());
   app.on('activate', () => showWindow());

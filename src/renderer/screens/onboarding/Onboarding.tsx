@@ -484,7 +484,9 @@ export function Onboarding() {
         )}
         <Screen />
       </main>
-      <span className="onb-tagline small muted">Free and open source</span>
+      <button className="onb-tagline link small muted" onClick={() => useUi.setState({ aboutOpen: true })}>
+        Free and open source
+      </button>
     </div>
   );
 }

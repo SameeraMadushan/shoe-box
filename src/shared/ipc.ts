@@ -72,8 +72,10 @@ export interface Events {
   /** The archive content changed; chat lists should reload. */
   archiveChanged: null;
   navigate: 'chats' | 'backup';
+  /** Open the About dialog (from the application menu). */
+  about: null;
 }
-export const EVENTS: (keyof Events)[] = ['state', 'archiveChanged', 'navigate'];
+export const EVENTS: (keyof Events)[] = ['state', 'archiveChanged', 'navigate', 'about'];
 
 export type ApiClient = {
   [K in keyof Api]: (...args: Parameters<Api[K]>) => Promise<ReturnType<Api[K]>>;

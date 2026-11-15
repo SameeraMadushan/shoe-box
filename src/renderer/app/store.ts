@@ -10,6 +10,7 @@ interface UiState {
   screen: Screen;
   /** When the onboarding backup was started, to tell its result from older runs. */
   syncStartedAt: number;
+  aboutOpen: boolean;
   setApp(app: AppState): void;
   go(step: Step): void;
   setScreen(screen: Screen): void;
@@ -21,6 +22,7 @@ export const useUi = create<UiState>((set, get) => ({
   step: 'welcome',
   screen: 'chats',
   syncStartedAt: 0,
+  aboutOpen: false,
   setApp: (app) => set(get().app ? { app } : { app, screen: app.settings.lastScreen }),
   go: (step) => set({ step }),
   setScreen: (screen) => {

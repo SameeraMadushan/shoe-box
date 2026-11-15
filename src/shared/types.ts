@@ -62,6 +62,8 @@ export interface DeviceState {
 export type DriveStatus = 'unconfigured' | 'off' | 'needsConnect' | 'connecting' | 'recoveryKey' | 'connected' | 'syncing' | 'syncFailed';
 
 export interface AppState {
+  /** App version, for the About dialog. */
+  version: string;
   platform: 'darwin' | 'win32' | 'linux';
   mock: boolean;
   settings: Settings;
@@ -122,6 +124,7 @@ export interface Preflight {
 
 /** Fixed allowlist of links that may open in the system browser. */
 export const EXTERNAL_LINKS = {
+  source: 'https://github.com/SameeraMadushan/shoe-box',
   appleDevices: 'https://apps.microsoft.com/detail/9np83lwlpz9k',
   resetBackupPassword: 'https://support.apple.com/108313',
 } as const;
