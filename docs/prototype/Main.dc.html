@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chat Archive prototype</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap">
+<style>
+body{margin:0}
+a{color:#8FB0FF}a:hover{color:#B4CAFF}
+button,input{font-family:inherit}
+:focus-visible{outline:3px solid #7FA2F5;outline-offset:2px}
+.btn{min-height:44px;padding:0 20px;border-radius:10px;border:1px solid #2456D6;background:#2456D6;color:#FFFFFF;font-size:15px;font-weight:600;cursor:pointer}
+.btn:hover{background:#1A3FA3}
+.btn:disabled{background:#2A3142;border-color:#2A3142;color:#A9B2C3;cursor:not-allowed}
+.btn2{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid #3A445C;background:#171D2B;color:#E8ECF4;font-size:14px;font-weight:600;cursor:pointer}
+.btn2:hover{background:#0F1420}
+.field{min-height:44px;box-sizing:border-box;padding:0 12px;border-radius:10px;border:1px solid #5A6680;background:#171D2B;color:#E8ECF4;font-size:15px}
+.tog{width:52px;height:44px;padding:0;border:none;background:none;cursor:pointer;display:flex;align-items:center;flex:0 0 auto}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #0F1420; color: #E8ECF4; font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+<sc-if value="{{isOnboarding}}" hint-placeholder-val="{{true}}">
+<div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 32px 20px 48px; box-sizing: border-box; gap: 28px">
+  <div style="display: flex; align-items: center; gap: 10px; align-self: stretch">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path><path d="M9 10.5l2 2 4-4"></path></svg>
+    <span style="font-family: 'Space Grotesk', Inter, sans-serif; font-weight: 700; font-size: 18px">Chat Archive</span>
+    <span style="font-size: 13px; color: #98A2B5">Free and open source</span>
+  </div>
+
+  <div style="width: 100%; max-width: 600px; background: #171D2B; border: 1px solid #283044; border-radius: 16px; padding: 36px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+
+    <sc-if value="{{showSteps}}" hint-placeholder-val="{{false}}">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <span style="font-size: 13px; font-weight: 600; color: #98A2B5">Step {{stepNum}} of 6</span>
+      <div style="display: flex; gap: 6px" aria-hidden="true">
+        <sc-for list="{{dots}}" as="dot" hint-placeholder-count="6"><span style="width: 28px; height: 4px; border-radius: 2px; background: {{dot.bg}}"></span></sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{isWelcome}}" hint-placeholder-val="{{true}}">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 30px; line-height: 1.15">Keep your iPhone chats on your own computer</h1>
+      <p style="margin: 0; color: #C2C9D6">Chat Archive backs up your iPhone to this computer and lets you read your chats here. Nothing is installed on your iPhone, and nothing leaves this computer unless you turn on Google Drive sync.</p>
+      <div style="display: flex; flex-direction: column; gap: 12px; background: #0F1420; border-radius: 12px; padding: 16px">
+        <div style="font-size: 13px; font-weight: 600; color: #98A2B5">What you need</div>
+        <div style="display: flex; gap: 10px; align-items: flex-start">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5FD39A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          <span>A USB cable, for the first connection only</span>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5FD39A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          <span>Free disk space about equal to what is used on your iPhone. The backup copies the whole phone, not just chats.</span>
+        </div>
+        <sc-if value="{{isWindows}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; gap: 10px; align-items: flex-start">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5FD39A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          <span>Apple device drivers: found (installed with the Apple Devices app)</span>
+        </div>
+        </sc-if>
+      </div>
+      <div><button class="btn" onClick="{{goConnect}}">Get started</button></div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{isConnect}}" hint-placeholder-val="{{false}}">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 26px; line-height: 1.2">Connect your iPhone with a cable</h1>
+      <p style="margin: 0; color: #C2C9D6">Unlock your iPhone and plug it into this computer. The first connection has to be by cable. After that, backups can run over Wi-Fi.</p>
+      <div style="display: flex; align-items: center; gap: 12px; border: 1px solid {{connectBorder}}; background: {{connectBg}}; border-radius: 12px; padding: 16px">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="{{connectFg}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"></rect><path d="M11 18.5h2"></path></svg>
+        <span style="font-weight: 600; color: {{connectFg}}">{{connectText}}</span>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap">
+        <button class="btn2" onClick="{{goWelcome}}">Back</button>
+        <button class="btn" onClick="{{goTrust}}" disabled="{{notDetected}}">Continue</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{isTrust}}" hint-placeholder-val="{{false}}">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 26px; line-height: 1.2">Tap Trust on your iPhone</h1>
+      <p style="margin: 0; color: #C2C9D6">Your iPhone is asking whether to trust this computer. Tap Trust, then enter your iPhone passcode.</p>
+      <div style="display: flex; justify-content: center; background: #0F1420; border-radius: 12px; padding: 20px">
+        <div style="width: 220px; background: #171D2B; border: 1px solid #3A445C; border-radius: 14px; overflow: hidden; text-align: center">
+          <div style="padding: 16px 14px 12px; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-weight: 700; font-size: 14px">Trust This Computer?</span>
+            <span style="font-size: 12px; color: #98A2B5">Shown on your iPhone screen</span>
+          </div>
+          <div style="display: flex; border-top: 1px solid #283044; font-size: 14px">
+            <span style="flex: 1; padding: 10px 0; font-weight: 700; color: #8FB0FF; border-right: 1px solid #283044">Trust</span>
+            <span style="flex: 1; padding: 10px 0; color: #C2C9D6">Don't Trust</span>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; border: 1px solid {{trustBorder}}; background: {{trustBg}}; border-radius: 12px; padding: 16px">
+        <span style="font-weight: 600; color: {{trustFg}}">{{trustText}}</span>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap">
+        <button class="btn2" onClick="{{goConnect}}">Back</button>
+        <button class="btn" onClick="{{goPassword}}" disabled="{{notTrusted}}">Continue</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{isPassword}}" hint-placeholder-val="{{false}}">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 26px; line-height: 1.2">Set a backup password</h1>
+      <p style="margin: 0; color: #C2C9D6">The backup is encrypted so nobody else using this computer can read your chats. Choose a password you will not forget.</p>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="pw1" style="font-size: 13px; font-weight: 600">Backup password</label>
+        <input id="pw1" class="field" type="password" value="{{pw}}" onChange="{{onPw}}" autocomplete="new-password">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="pw2" style="font-size: 13px; font-weight: 600">Type it again</label>
+        <input id="pw2" class="field" type="password" value="{{pw2}}" onChange="{{onPw2}}" autocomplete="new-password">
+        <span style="font-size: 13px; color: {{pwHintColor}}">{{pwHint}}</span>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: flex-start; background: #3A2A10; border: 1px solid #7A5A22; border-radius: 12px; padding: 14px; color: #FFD79A; font-size: 14px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F2B25C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto"><path d="M12 3.5l9.5 16.5h-19z"></path><path d="M12 10v4.5"></path><path d="M12 17.3v.2"></path></svg>
+        <span>The password is saved in {{credStore}} so daily backups can run without asking you. If it is lost, existing backups cannot be opened and Apple cannot recover it.</span>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap">
+        <button class="btn2" onClick="{{goTrust}}">Back</button>
+        <button class="btn" onClick="{{goWifi}}" disabled="{{pwInvalid}}">Save password</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{isWifi}}" hint-placeholder-val="{{false}}">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 26px; line-height: 1.2">Back up over Wi-Fi from now on</h1>
+      <p style="margin: 0; color: #C2C9D6">With Wi-Fi syncing on, you will not need the cable again for daily backups.</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid #283044; border-radius: 12px; padding: 8px 16px">
+        <span id="wifiLabel" style="font-weight: 600">Wi-Fi syncing</span>
+        <button class="tog" role="switch" aria-checked="{{wifi.aria}}" aria-labelledby="wifiLabel" onClick="{{toggleWifi}}"><span style="width: 48px; height: 28px; border-radius: 14px; background: {{wifi.bg}}; display: block"><span style="display: block; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; margin-top: 2px; margin-left: {{wifi.ml}}"></span></span></button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; background: #0F1420; border-radius: 12px; padding: 16px">
+        <div style="font-size: 13px; font-weight: 600; color: #98A2B5">A wireless backup only runs when</div>
+        <span>This computer is on and awake</span>
+        <span>Your iPhone is on the same Wi-Fi network</span>
+        <span>Your iPhone is charging (recommended, not required)</span>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap">
+        <button class="btn2" onClick="{{goPassword}}">Back</button>
+        <button class="btn" onClick="{{goSync}}">Start first backup</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{isSync}}" hint-placeholder-val="{{false}}">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 26px; line-height: 1.2">{{syncTitle}}</h1>
+      <p style="margin: 0; color: #C2C9D6">Keep the cable connected. The first backup copies your whole iPhone and can take a while. Later backups only copy what changed.</p>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; justify-content: space-between; font-weight: 600"><span>{{phaseLabel}}</span><span>{{progressPct}}%</span></div>
+        <div role="progressbar" aria-label="First backup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{progressPct}}" style="height: 10px; border-radius: 5px; background: #283044; overflow: hidden"><div style="height: 10px; width: {{progressPct}}%; background: #2456D6"></div></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <sc-for list="{{phases}}" as="ph" hint-placeholder-count="4">
+        <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 14px; border: 1px solid #283044; border-radius: 10px">
+          <span style="font-weight: {{ph.weight}}">{{ph.label}}</span>
+          <span style="font-size: 13px; font-weight: 600; color: {{ph.color}}">{{ph.status}}</span>
+        </div>
+        </sc-for>
+      </div>
+      <div><button class="btn" onClick="{{goDone}}" disabled="{{syncRunning}}">Continue</button></div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{isDone}}" hint-placeholder-val="{{false}}">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 26px; line-height: 1.2">Your chats are saved on this computer</h1>
+      <p style="margin: 0; color: #C2C9D6">You can unplug the cable now. Here is what was archived.</p>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+        <div style="background: #0F1420; border-radius: 12px; padding: 14px"><div style="font-family: 'Space Grotesk', Inter, sans-serif; font-size: 24px; font-weight: 700">42</div><div style="font-size: 13px; color: #98A2B5">chats</div></div>
+        <div style="background: #0F1420; border-radius: 12px; padding: 14px"><div style="font-family: 'Space Grotesk', Inter, sans-serif; font-size: 24px; font-weight: 700">18,640</div><div style="font-size: 13px; color: #98A2B5">messages</div></div>
+        <div style="background: #0F1420; border-radius: 12px; padding: 14px"><div style="font-family: 'Space Grotesk', Inter, sans-serif; font-size: 24px; font-weight: 700">3,212</div><div style="font-size: 13px; color: #98A2B5">photos, videos, voice notes</div></div>
+      </div>
+      <div style="display: flex; flex-direction: column; border: 1px solid #283044; border-radius: 12px">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 16px; border-bottom: 1px solid #283044; flex-wrap: wrap">
+          <div style="display: flex; flex-direction: column"><label for="obTime" style="font-weight: 600">Back up every day at</label><span style="font-size: 13px; color: #98A2B5">If the computer is asleep then, the backup runs when it next wakes</span></div>
+          <input id="obTime" class="field" type="time" value="{{schedTime}}" onChange="{{onTime}}">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 16px; border-bottom: 1px solid #283044">
+          <div style="display: flex; flex-direction: column"><span id="obLogin" style="font-weight: 600">Start when I log in</span><span style="font-size: 13px; color: #98A2B5">Runs quietly in the {{trayName}}</span></div>
+          <button class="tog" role="switch" aria-checked="{{login.aria}}" aria-labelledby="obLogin" onClick="{{toggleLogin}}"><span style="width: 48px; height: 28px; border-radius: 14px; background: {{login.bg}}; display: block"><span style="display: block; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; margin-top: 2px; margin-left: {{login.ml}}"></span></span></button>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 16px">
+          <div style="display: flex; flex-direction: column"><span id="obDrive" style="font-weight: 600">Also copy the archive to Google Drive</span><span style="font-size: 13px; color: #98A2B5">Optional. Encrypted before upload. You can set this up later in Backup.</span></div>
+          <button class="tog" role="switch" aria-checked="{{drive.aria}}" aria-labelledby="obDrive" onClick="{{toggleDrive}}"><span style="width: 48px; height: 28px; border-radius: 14px; background: {{drive.bg}}; display: block"><span style="display: block; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; margin-top: 2px; margin-left: {{drive.ml}}"></span></span></button>
+        </div>
+      </div>
+      <div style="background: #1B2A4D; border-radius: 12px; padding: 14px; font-size: 14px; color: #C9D8FF">Good to know: this archive is for keeping and reading your chats. It cannot be restored back into the chat app on an iPhone.</div>
+      <div><button class="btn" onClick="{{goChats}}">Open my chats</button></div>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isApp}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-wrap: wrap; height: 100vh; min-height: 620px; overflow: auto">
+
+  <nav aria-label="Main" style="flex: 0 0 84px; background: #0B0F18; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; box-sizing: border-box">
+    <button onClick="{{goChats}}" aria-label="Chats" style="width: 68px; min-height: 60px; border: none; border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 12px; font-weight: 600; background: {{railChatsBg}}; color: {{railChatsFg}}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg>
+      <span>Chats</span>
+    </button>
+    <button onClick="{{goBackup}}" aria-label="Backup and settings" style="position: relative; width: 68px; min-height: 60px; border: none; border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 12px; font-weight: 600; background: {{railBackupBg}}; color: {{railBackupFg}}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"></path><path d="M20 4v4.5h-4.5"></path><path d="M12 8v4.5l3 1.5"></path></svg>
+      <span>Backup</span>
+      <sc-if value="{{failed}}" hint-placeholder-val="{{false}}"><span style="position: absolute; top: 6px; right: 10px; width: 10px; height: 10px; border-radius: 5px; background: #FF8A3D; border: 2px solid #0B0F18"></span></sc-if>
+    </button>
+  </nav>
+
+  <sc-if value="{{isChats}}" hint-placeholder-val="{{true}}">
+  <div style="flex: 999 1 600px; min-width: 0; display: flex; flex-wrap: wrap">
+
+    <section aria-label="Chat list" style="flex: 1 1 300px; min-width: 0; min-height: 300px; background: #171D2B; border-right: 1px solid #283044; display: flex; flex-direction: column">
+      <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #283044">
+        <h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 20px">Chats</h1>
+        <div style="position: relative; display: flex">
+          <label for="search" style="position: absolute; left: 12px; top: 12px; display: flex"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#98A2B5" stroke-width="2" stroke-linecap="round" role="img" aria-label="Search chats and messages"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg></label>
+          <input id="search" class="field" type="search" placeholder="Search chats and messages" value="{{query}}" onChange="{{onQuery}}" style="flex: 1; min-width: 0; padding-left: 40px">
+        </div>
+      </div>
+      <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px">
+        <sc-for list="{{chatList}}" as="chat" hint-placeholder-count="6">
+        <button onClick="{{chat.open}}" style="display: flex; gap: 12px; align-items: center; text-align: left; border: none; border-radius: 12px; padding: 10px; cursor: pointer; background: {{chat.bg}}; color: #E8ECF4">
+          <span aria-hidden="true" style="flex: 0 0 44px; height: 44px; border-radius: 22px; background: {{chat.tint}}; color: #10131A; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px">{{chat.initials}}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+            <span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{chat.name}}</span><span style="font-size: 12px; color: #98A2B5; flex: 0 0 auto">{{chat.when}}</span></span>
+            <span style="font-size: 13px; color: #98A2B5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{chat.sub}}</span>
+          </span>
+        </button>
+        </sc-for>
+        <sc-if value="{{noResults}}" hint-placeholder-val="{{false}}"><p style="margin: 0; padding: 20px 12px; color: #98A2B5">No chats or messages match your search.</p></sc-if>
+      </div>
+    </section>
+
+    <section aria-label="Conversation" style="flex: 999 1 460px; min-width: 0; min-height: 420px; display: flex; flex-direction: column; background: #0C111B">
+      <sc-if value="{{failed}}" hint-placeholder-val="{{false}}">
+      <div role="alert" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: #3A2A10; border-bottom: 1px solid #7A5A22; color: #FFD79A; padding: 8px 16px; font-size: 14px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F2B25C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l9.5 16.5h-19z"></path><path d="M12 10v4.5"></path><path d="M12 17.3v.2"></path></svg>
+        <span style="flex: 1 1 260px"><strong>Today's backup did not run.</strong> Your iPhone was not found on Wi-Fi. Chats here are current up to 14 Nov.</span>
+        <button class="btn2" onClick="{{retryBackup}}">Retry now</button>
+      </div>
+      </sc-if>
+      <header style="display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: #171D2B; border-bottom: 1px solid #283044">
+        <span aria-hidden="true" style="flex: 0 0 40px; height: 40px; border-radius: 20px; background: {{active.tint}}; color: #10131A; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px">{{active.initials}}</span>
+        <div style="display: flex; flex-direction: column; min-width: 0">
+          <h2 style="margin: 0; font-size: 16px">{{active.name}}</h2>
+          <span style="font-size: 13px; color: #98A2B5">{{active.meta}}</span>
+        </div>
+      </header>
+      <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+        <sc-for list="{{messages}}" as="m" hint-placeholder-count="6">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <sc-if value="{{m.showDay}}" hint-placeholder-val="{{false}}"><div style="align-self: center; background: #171D2B; border: 1px solid #283044; border-radius: 8px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #98A2B5; margin: 8px 0 4px">{{m.day}}</div></sc-if>
+          <div style="display: flex; justify-content: {{m.justify}}">
+            <div style="max-width: 70%; min-width: 120px; box-sizing: border-box; background: {{m.bg}}; border: 1px solid {{m.border}}; box-shadow: {{m.ring}}; border-radius: 14px; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px">
+              <sc-if value="{{m.hasSender}}" hint-placeholder-val="{{false}}"><span style="font-size: 12px; font-weight: 700; color: #C9D8FF">{{m.sender}}</span></sc-if>
+              <sc-if value="{{m.isImage}}" hint-placeholder-val="{{false}}">
+              <div role="img" aria-label="Photo placeholder" style="width: 260px; max-width: 100%; height: 170px; border-radius: 10px; background: #C9D3E6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #2B3550; font-size: 13px; font-weight: 600">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="M21 16l-5-5-8 8"></path></svg>
+                <span>Photo · {{m.file}}</span>
+              </div>
+              </sc-if>
+              <sc-if value="{{m.isVideo}}" hint-placeholder-val="{{false}}">
+              <div role="img" aria-label="Video placeholder" style="width: 260px; max-width: 100%; height: 170px; border-radius: 10px; background: #2B3550; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #FFFFFF; font-size: 13px; font-weight: 600">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"></circle><path d="M10 8.5v7l6-3.5z" fill="currentColor"></path></svg>
+                <span>Video · {{m.file}} · {{m.dur}}</span>
+              </div>
+              </sc-if>
+              <sc-if value="{{m.isVoice}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; align-items: center; gap: 10px">
+                <button onClick="{{m.togglePlay}}" aria-label="{{m.playLabel}}" style="flex: 0 0 44px; width: 44px; height: 44px; border-radius: 22px; border: none; background: #2456D6; color: #FFFFFF; cursor: pointer; display: flex; align-items: center; justify-content: center">
+                  <sc-if value="{{m.notPlaying}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg></sc-if>
+                  <sc-if value="{{m.playing}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg></sc-if>
+                </button>
+                <div aria-hidden="true" style="display: flex; align-items: center; gap: 2px; height: 26px">
+                  <sc-for list="{{m.bars}}" as="bar" hint-placeholder-count="18"><span style="width: 3px; height: {{bar.h}}px; border-radius: 2px; background: {{m.barColor}}"></span></sc-for>
+                </div>
+                <span style="font-size: 13px; color: #C2C9D6">{{m.dur}}</span>
+              </div>
+              </sc-if>
+              <sc-if value="{{m.hasText}}" hint-placeholder-val="{{true}}"><span>{{m.text}}</span></sc-if>
+              <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #A9B2C3">
+                <sc-if value="{{m.deleted}}" hint-placeholder-val="{{false}}"><span style="background: #3A2A10; border: 1px solid #7A5A22; color: #FFD79A; border-radius: 6px; padding: 1px 6px; font-weight: 600">Deleted on phone · kept here</span></sc-if>
+                <span>{{m.time}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        </sc-for>
+      </div>
+      <footer style="padding: 10px 20px; background: #171D2B; border-top: 1px solid #283044; font-size: 13px; color: #98A2B5">Read-only archive · {{archiveFresh}}</footer>
+    </section>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{isBackup}}" hint-placeholder-val="{{false}}">
+  <main style="flex: 999 1 600px; min-width: 0; overflow-y: auto; padding: 28px 24px 48px; box-sizing: border-box">
+    <div style="max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 24px">Backup and settings</h1>
+
+      <section style="background: #171D2B; border: 1px solid {{statusBorder}}; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+          <div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 320px">
+            <h2 style="margin: 0; font-size: 18px; color: {{statusColor}}">{{statusTitle}}</h2>
+            <span style="color: #C2C9D6">{{statusDetail}}</span>
+            <span style="font-size: 14px; color: #98A2B5">{{nextText}}</span>
+          </div>
+          <button class="btn" onClick="{{runManual}}" disabled="{{manualRunning}}">{{manualLabel}}</button>
+        </div>
+        <sc-if value="{{manualRunning}}" hint-placeholder-val="{{false}}">
+        <div role="progressbar" aria-label="Backup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{manualPct}}" style="height: 8px; border-radius: 4px; background: #283044; overflow: hidden"><div style="height: 8px; width: {{manualPct}}%; background: #2456D6"></div></div>
+        </sc-if>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+          <div style="background: #0F1420; border-radius: 10px; padding: 12px; font-size: 14px"><strong style="display: block">Computer</strong>On and awake at backup time</div>
+          <div style="background: #0F1420; border-radius: 10px; padding: 12px; font-size: 14px"><strong style="display: block">iPhone</strong>On the same Wi-Fi network</div>
+          <div style="background: #0F1420; border-radius: 10px; padding: 12px; font-size: 14px"><strong style="display: block">Power</strong>Works best while charging</div>
+        </div>
+      </section>
+
+      <section style="background: #171D2B; border: 1px solid #283044; border-radius: 14px; display: flex; flex-direction: column">
+        <h2 style="margin: 0; font-size: 16px; padding: 16px 20px 8px">Schedule</h2>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 20px; border-bottom: 1px solid #283044">
+          <span id="sDaily" style="font-weight: 600">Back up automatically every day</span>
+          <button class="tog" role="switch" aria-checked="{{daily.aria}}" aria-labelledby="sDaily" onClick="{{toggleDaily}}"><span style="width: 48px; height: 28px; border-radius: 14px; background: {{daily.bg}}; display: block"><span style="display: block; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; margin-top: 2px; margin-left: {{daily.ml}}"></span></span></button>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 20px; border-bottom: 1px solid #283044; flex-wrap: wrap">
+          <div style="display: flex; flex-direction: column"><label for="sTime" style="font-weight: 600">Backup time</label><span style="font-size: 13px; color: #98A2B5">If the computer is asleep at this time, the backup runs when it next wakes</span></div>
+          <input id="sTime" class="field" type="time" value="{{schedTime}}" onChange="{{onTime}}">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 20px; border-bottom: 1px solid #283044">
+          <span id="sNotify" style="font-weight: 600">Notify me when a backup fails</span>
+          <button class="tog" role="switch" aria-checked="{{notify.aria}}" aria-labelledby="sNotify" onClick="{{toggleNotify}}"><span style="width: 48px; height: 28px; border-radius: 14px; background: {{notify.bg}}; display: block"><span style="display: block; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; margin-top: 2px; margin-left: {{notify.ml}}"></span></span></button>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 20px">
+          <div style="display: flex; flex-direction: column"><span id="sLogin" style="font-weight: 600">Start when I log in</span><span style="font-size: 13px; color: #98A2B5">Keeps running in the {{trayName}} after you close the window</span></div>
+          <button class="tog" role="switch" aria-checked="{{login.aria}}" aria-labelledby="sLogin" onClick="{{toggleLogin}}"><span style="width: 48px; height: 28px; border-radius: 14px; background: {{login.bg}}; display: block"><span style="display: block; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; margin-top: 2px; margin-left: {{login.ml}}"></span></span></button>
+        </div>
+      </section>
+
+      <section style="background: #171D2B; border: 1px solid #283044; border-radius: 14px; display: flex; flex-direction: column">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 20px">
+          <div style="display: flex; flex-direction: column"><h2 id="sDrive" style="margin: 0; font-size: 16px">Google Drive sync</h2><span style="font-size: 13px; color: #98A2B5">Uploads a copy of your chat archive to your Drive. It is encrypted on this computer before upload, so it cannot be read from Drive directly. This is the only way data leaves this computer.</span></div>
+          <button class="tog" role="switch" aria-checked="{{drive.aria}}" aria-labelledby="sDrive" onClick="{{toggleDrive}}"><span style="width: 48px; height: 28px; border-radius: 14px; background: {{drive.bg}}; display: block"><span style="display: block; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; margin-top: 2px; margin-left: {{drive.ml}}"></span></span></button>
+        </div>
+        <sc-if value="{{driveNeedsConnect}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 20px; border-top: 1px solid #283044; flex-wrap: wrap">
+          <span>No Google account connected yet</span>
+          <button class="btn2" onClick="{{connectDrive}}">Connect Google account</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{driveReady}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 20px; border-top: 1px solid #283044; flex-wrap: wrap">
+          <div style="display: flex; flex-direction: column"><span style="font-weight: 600; color: #5FD39A">Connected · you@example.com</span><span style="font-size: 13px; color: #98A2B5">Folder: My Drive / Chat Archive · encrypted · syncs after each backup</span></div>
+          <button class="btn2" onClick="{{disconnectDrive}}">Disconnect</button>
+        </div>
+        </sc-if>
+      </section>
+
+      <section style="background: #171D2B; border: 1px solid #283044; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-size: 16px">Storage on this computer</h2>
+          <span style="font-weight: 700">46.7 GB used</span>
+        </div>
+        <div aria-hidden="true" style="display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px">
+          <span style="flex: 38.2; background: #C9D8FF"></span>
+          <span style="flex: 6.4; background: #5B86E5"></span>
+          <span style="flex: 2.1; background: #2F4A8F"></span>
+        </div>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px">
+          <span style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 3px; background: #C9D8FF"></span>iPhone backup · 38.2 GB</span>
+          <span style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 3px; background: #5B86E5"></span>Chat photos, videos, voice notes · 6.4 GB</span>
+          <span style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 3px; background: #2F4A8F; border: 1px solid #5B86E5"></span>Chat archive database · 2.1 GB</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid #283044; padding-top: 12px">
+          <span style="font-size: 14px; color: #C2C9D6">Location: {{archivePath}}</span>
+          <button class="btn2">Change location</button>
+        </div>
+      </section>
+
+      <section style="background: #171D2B; border: 1px solid #283044; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 4px">
+        <h2 style="margin: 0 0 8px; font-size: 16px">Recent backups</h2>
+        <sc-for list="{{history}}" as="h" hint-placeholder-count="5">
+        <div style="display: flex; gap: 16px; padding: 10px 0; border-top: 1px solid #283044; flex-wrap: wrap; font-size: 14px">
+          <span style="flex: 0 0 110px; color: #C2C9D6">{{h.date}}</span>
+          <span style="flex: 0 0 90px; font-weight: 700; color: {{h.color}}">{{h.result}}</span>
+          <span style="flex: 1 1 240px; color: #C2C9D6">{{h.detail}}</span>
+        </div>
+        </sc-for>
+      </section>
+
+      <div style="background: #1B2A4D; border-radius: 12px; padding: 14px; font-size: 14px; color: #C9D8FF">This archive is for keeping and reading your chats. It cannot be restored back into the chat app on an iPhone. All data stays on this computer unless Google Drive sync is on.</div>
+      <div><button class="btn2" onClick="{{goWelcome}}">Set up a different iPhone</button></div>
+    </div>
+  </main>
+  </sc-if>
+
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startAt":{"editor":"enum","options":["Onboarding","Main app"],"default":"Onboarding","section":"Prototype"},"platform":{"editor":"enum","options":["macOS","Windows"],"default":"macOS","section":"Prototype"},"lastBackup":{"editor":"enum","options":["Succeeded","Failed"],"default":"Succeeded","section":"Prototype"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = {
+    screen: null, detected: false, trusted: false, pw: '', pw2: '', wifiOn: true,
+    progress: 0, syncDone: false, activeChat: 'c1', query: '', schedTime: '20:00',
+    dailyOn: true, notifyOn: true, loginOn: true, driveOn: false, driveConnected: false,
+    manual: null, justBackedUp: false, resolved: false, playing: null
+  };
+
+  componentWillUnmount() {
+    (this.timers || []).forEach((t) => { clearTimeout(t); clearInterval(t); });
+  }
+
+  later(fn, ms) {
+    this.timers = this.timers || [];
+    this.timers.push(setTimeout(fn, ms));
+  }
+
+  go(screen) {
+    this.setState({ screen: screen });
+    if (screen === 'connect' && !this.state.detected) this.later(() => this.setState({ detected: true }), 1800);
+    if (screen === 'trust' && !this.state.trusted) this.later(() => this.setState({ trusted: true }), 2200);
+    if (screen === 'sync' && !this.state.syncDone && !this.syncTimer) {
+      this.timers = this.timers || [];
+      this.syncTimer = setInterval(() => {
+        const next = Math.min(100, this.state.progress + 1.5);
+        if (next >= 100) { clearInterval(this.syncTimer); this.syncTimer = null; this.setState({ progress: 100, syncDone: true }); }
+        else this.setState({ progress: next });
+      }, 110);
+      this.timers.push(this.syncTimer);
+    }
+  }
+
+  runManual() {
+    if (this.state.manual !== null) return;
+    this.timers = this.timers || [];
+    this.setState({ manual: 0 });
+    const t = setInterval(() => {
+      const next = (this.state.manual || 0) + 5;
+      if (next >= 100) { clearInterval(t); this.setState({ manual: null, justBackedUp: true, resolved: true }); }
+      else this.setState({ manual: next });
+    }, 110);
+    this.timers.push(t);
+  }
+
+  chats() {
+    const bars = [6, 12, 18, 10, 22, 14, 8, 16, 20, 12, 6, 14, 18, 10, 8, 12, 16, 6].map((h) => ({ h: h }));
+    return [
+      { id: 'c1', name: 'Nadia Perera', initials: 'NP', tint: '#C9D8FA', when: '08:31', meta: '1,204 messages archived · since 12 Mar 2024', msgs: [
+        { id: 'a1', day: 'Friday 13 November', text: 'Are you still coming on Sunday?', time: '18:12' },
+        { id: 'a2', me: true, text: 'Yes! What time should I be there?', time: '18:15' },
+        { id: 'a3', text: 'Around 11. Bring the camera', time: '18:16' },
+        { id: 'a4', day: 'Saturday 14 November', kind: 'image', file: 'IMG_2041.jpg', text: 'Found this from the trip', time: '09:40' },
+        { id: 'a5', me: true, text: 'I forgot how good that view was', time: '09:44' },
+        { id: 'a6', kind: 'voice', dur: '0:42', time: '09:50', bars: bars },
+        { id: 'a7', text: 'Ignore that last one, wrong chat', time: '09:51', deleted: true },
+        { id: 'a8', day: 'Today', me: true, kind: 'video', file: 'VID_0193.mp4', dur: '1:08', text: 'From this morning', time: '08:20' },
+        { id: 'a9', text: 'Love it. See you at 11', time: '08:31' }
+      ] },
+      { id: 'c2', name: 'Weekend Hikers', initials: 'WH', tint: '#CDE9D8', when: 'Yesterday', meta: 'Group · 5 people · 3,870 messages archived', msgs: [
+        { id: 'b1', day: 'Saturday 14 November', sender: 'Tharindu', text: 'Trailhead at 6am. Who needs a lift?', time: '16:02' },
+        { id: 'b2', sender: 'Maya', text: 'Me please', time: '16:05' },
+        { id: 'b3', me: true, text: 'I can drive. Two seats free', time: '16:09' },
+        { id: 'b4', sender: 'Tharindu', kind: 'image', file: 'IMG_1988.jpg', text: 'Route map', time: '16:20' },
+        { id: 'b5', sender: 'Maya', kind: 'voice', dur: '0:17', time: '16:24', bars: bars },
+        { id: 'b6', sender: 'Dilan', text: 'Bring the camera, forecast is clear', time: '17:40' }
+      ] },
+      { id: 'c3', name: 'Ravi', initials: 'R', tint: '#F6DEC2', when: 'Fri', meta: '642 messages archived · since 3 Jun 2025', msgs: [
+        { id: 'd1', day: 'Friday 13 November', me: true, text: 'Did the parcel arrive?', time: '11:30' },
+        { id: 'd2', text: 'Yes, this morning. Thanks for sending it', time: '11:52' },
+        { id: 'd3', kind: 'image', file: 'IMG_2030.jpg', time: '11:53' }
+      ] },
+      { id: 'c4', name: 'Flat 4B', initials: '4B', tint: '#E4D6F5', when: 'Thu', meta: 'Group · 3 people · 911 messages archived', msgs: [
+        { id: 'e1', day: 'Thursday 12 November', sender: 'Ishara', text: 'Plumber is coming Monday between 9 and 12', time: '19:14' },
+        { id: 'e2', me: true, text: 'I will be home', time: '19:20' }
+      ] },
+      { id: 'c5', name: 'Ishara', initials: 'I', tint: '#F5D6DE', when: '9 Nov', meta: '2,310 messages archived · since 20 Jan 2024', msgs: [
+        { id: 'f1', day: 'Monday 9 November', text: 'Happy birthday!', time: '00:01' },
+        { id: 'f2', me: true, text: 'Thank you!', time: '07:45' }
+      ] }
+    ];
+  }
+
+  renderVals() {
+    const s = this.state;
+    const p = this.props;
+    const screen = s.screen || (p.startAt === 'Main app' ? 'chats' : 'welcome');
+    const isWindows = p.platform === 'Windows';
+    const failed = p.lastBackup === 'Failed' && !s.resolved;
+    const tog = (on) => ({ bg: on ? '#2456D6' : '#6B7385', ml: on ? '22px' : '2px', aria: on ? 'true' : 'false' });
+    const order = ['connect', 'trust', 'password', 'wifi', 'sync', 'done'];
+    const stepNum = order.indexOf(screen) + 1;
+    const isApp = screen === 'chats' || screen === 'backup';
+    const pct = Math.round(s.progress);
+
+    const phaseDefs = [['Backing up iPhone', 0, 55], ['Decrypting chat data', 55, 70], ['Reading chats and messages', 70, 88], ['Indexing photos, videos and voice notes', 88, 100]];
+    let phaseLabel = 'Finished';
+    const phases = phaseDefs.map((d) => {
+      const done = s.progress >= d[2];
+      const activeNow = !done && s.progress >= d[1];
+      if (activeNow) phaseLabel = d[0];
+      return { label: d[0], status: done ? 'Done' : activeNow ? 'In progress' : 'Waiting', color: done ? '#5FD39A' : activeNow ? '#8FB0FF' : '#98A2B5', weight: activeNow ? 600 : 400 };
+    });
+
+    const q = s.query.trim().toLowerCase();
+    const all = this.chats();
+    const chatList = all.map((c) => {
+      const hits = q ? c.msgs.filter((m) => (m.text || '').toLowerCase().indexOf(q) >= 0).length : 0;
+      const last = c.msgs[c.msgs.length - 1];
+      const lastText = last.text || (last.kind === 'image' ? 'Photo' : last.kind === 'video' ? 'Video' : 'Voice note');
+      return {
+        id: c.id, name: c.name, initials: c.initials, tint: c.tint, when: c.when, hits: hits,
+        nameHit: c.name.toLowerCase().indexOf(q) >= 0,
+        sub: q && hits ? hits + (hits === 1 ? ' matching message' : ' matching messages') : (last.me ? 'You: ' : '') + lastText,
+        bg: c.id === s.activeChat ? '#1B2A4D' : '#171D2B',
+        open: () => this.setState({ activeChat: c.id })
+      };
+    }).filter((c) => !q || c.nameHit || c.hits > 0);
+
+    const active = all.filter((c) => c.id === s.activeChat)[0] || all[0];
+    const messages = active.msgs.map((m) => {
+      const playing = s.playing === m.id;
+      const hit = q && (m.text || '').toLowerCase().indexOf(q) >= 0;
+      return {
+        showDay: !!m.day, day: m.day || '', justify: m.me ? 'flex-end' : 'flex-start',
+        bg: m.me ? '#23408A' : '#1C2333', border: m.me ? '#2F4A8F' : '#283044',
+        ring: hit ? '0 0 0 3px #E08A00' : 'none',
+        hasSender: !!m.sender, sender: m.sender || '',
+        isImage: m.kind === 'image', isVideo: m.kind === 'video', isVoice: m.kind === 'voice',
+        file: m.file || '', dur: m.dur || '', bars: m.bars || [], barColor: playing ? '#2456D6' : '#6B7385',
+        playing: playing, notPlaying: !playing, playLabel: playing ? 'Pause voice note' : 'Play voice note',
+        togglePlay: () => this.setState({ playing: playing ? null : m.id }),
+        hasText: !!m.text, text: m.text || '', time: m.time, deleted: !!m.deleted
+      };
+    });
+
+    const okRow = (date, detail) => ({ date: date, result: 'Succeeded', color: '#5FD39A', detail: detail });
+    const history = [];
+    if (s.justBackedUp) history.push(okRow('Today, just now', 'Manual backup · no new messages'));
+    if (p.lastBackup === 'Failed') history.push({ date: 'Today, 20:00', result: 'Failed', color: '#FF8F85', detail: 'iPhone not found on Wi-Fi' });
+    else history.push(okRow('Today, 20:02', '14 new messages · over Wi-Fi'));
+    history.push(okRow('14 Nov, 20:01', '52 new messages, 6 media files · over Wi-Fi'));
+    history.push({ date: '13 Nov, 22:47', result: 'Delayed', color: '#F2B25C', detail: 'Computer was asleep at 20:00 · ran when it woke · 9 new messages' });
+    history.push(okRow('12 Nov, 20:03', '31 new messages, 2 media files · over Wi-Fi'));
+    history.push(okRow('11 Nov, 14:26', 'First backup · by cable'));
+
+    const pwOk = s.pw.length >= 4 && s.pw === s.pw2;
+    const pwMismatch = s.pw2.length > 0 && s.pw !== s.pw2;
+
+    return {
+      isOnboarding: !isApp, isApp: isApp, showSteps: stepNum > 0, stepNum: stepNum,
+      dots: order.map((_, i) => ({ bg: i < stepNum ? '#2456D6' : '#2F384D' })),
+      isWelcome: screen === 'welcome', isConnect: screen === 'connect', isTrust: screen === 'trust',
+      isPassword: screen === 'password', isWifi: screen === 'wifi', isSync: screen === 'sync', isDone: screen === 'done',
+      isChats: screen === 'chats', isBackup: screen === 'backup',
+      isWindows: isWindows,
+      credStore: isWindows ? 'Windows Credential Manager' : 'macOS Keychain',
+      trayName: isWindows ? 'system tray' : 'menu bar',
+      archivePath: isWindows ? 'C:\\Users\\you\\ChatArchive' : '~/ChatArchive',
+
+      goWelcome: () => this.go('welcome'), goConnect: () => this.go('connect'), goTrust: () => this.go('trust'),
+      goPassword: () => this.go('password'), goWifi: () => this.go('wifi'), goSync: () => this.go('sync'),
+      goDone: () => this.go('done'), goChats: () => this.go('chats'), goBackup: () => this.go('backup'),
+
+      notDetected: !s.detected,
+      connectText: s.detected ? 'iPhone found: iPhone 15' : 'Looking for an iPhone…',
+      connectFg: s.detected ? '#5FD39A' : '#C2C9D6', connectBg: s.detected ? '#12301F' : '#0F1420', connectBorder: s.detected ? '#2C6B48' : '#283044',
+      notTrusted: !s.trusted,
+      trustText: s.trusted ? 'This computer is trusted' : 'Waiting for you to tap Trust…',
+      trustFg: s.trusted ? '#5FD39A' : '#C2C9D6', trustBg: s.trusted ? '#12301F' : '#0F1420', trustBorder: s.trusted ? '#2C6B48' : '#283044',
+
+      pw: s.pw, pw2: s.pw2, pwInvalid: !pwOk,
+      onPw: (e) => this.setState({ pw: e.target.value }), onPw2: (e) => this.setState({ pw2: e.target.value }),
+      pwHint: pwMismatch ? 'The two passwords do not match' : pwOk ? 'Passwords match' : 'At least 4 characters',
+      pwHintColor: pwMismatch ? '#FF8F85' : pwOk ? '#5FD39A' : '#98A2B5',
+
+      wifi: tog(s.wifiOn), toggleWifi: () => this.setState({ wifiOn: !s.wifiOn }),
+      login: tog(s.loginOn), toggleLogin: () => this.setState({ loginOn: !s.loginOn }),
+      drive: tog(s.driveOn), toggleDrive: () => this.setState({ driveOn: !s.driveOn }),
+      daily: tog(s.dailyOn), toggleDaily: () => this.setState({ dailyOn: !s.dailyOn }),
+      notify: tog(s.notifyOn), toggleNotify: () => this.setState({ notifyOn: !s.notifyOn }),
+      driveNeedsConnect: s.driveOn && !s.driveConnected, driveReady: s.driveOn && s.driveConnected,
+      connectDrive: () => this.setState({ driveConnected: true }), disconnectDrive: () => this.setState({ driveConnected: false }),
+
+      syncTitle: s.syncDone ? 'First backup finished' : 'First backup in progress',
+      progressPct: pct, phaseLabel: phaseLabel, phases: phases, syncRunning: !s.syncDone,
+
+      schedTime: s.schedTime, onTime: (e) => this.setState({ schedTime: e.target.value }),
+
+      failed: failed,
+      railChatsBg: screen === 'chats' ? '#2456D6' : 'transparent', railChatsFg: screen === 'chats' ? '#FFFFFF' : '#C9CFDA',
+      railBackupBg: screen === 'backup' ? '#2456D6' : 'transparent', railBackupFg: screen === 'backup' ? '#FFFFFF' : '#C9CFDA',
+
+      query: s.query, onQuery: (e) => this.setState({ query: e.target.value }),
+      chatList: chatList, noResults: chatList.length === 0,
+      active: active, messages: messages,
+      archiveFresh: failed ? 'last updated 14 Nov at 20:01' : s.justBackedUp ? 'last updated just now' : 'last updated today at 20:02',
+      retryBackup: () => { this.go('backup'); this.runManual(); },
+
+      statusTitle: failed ? 'Last backup failed' : 'Last backup succeeded',
+      statusColor: failed ? '#FF8F85' : '#5FD39A', statusBorder: failed ? '#7A2F29' : '#283044',
+      statusDetail: failed ? 'Today at 20:00 · iPhone was not found on Wi-Fi. Check that it is on the same network, or connect the cable and retry.' : s.justBackedUp ? 'Just now · no new messages' : 'Today at 20:02 · 14 new messages added · over Wi-Fi',
+      nextText: s.dailyOn ? 'Next backup: tomorrow at ' + s.schedTime : 'Automatic backups are off',
+      runManual: () => this.runManual(), manualRunning: s.manual !== null, manualPct: s.manual || 0,
+      manualLabel: s.manual !== null ? 'Backing up…' : failed ? 'Retry now' : 'Back up now',
+      history: history
+    };
+  }
+}
+</script>
+</body>
+</html>

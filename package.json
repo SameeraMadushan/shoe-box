@@ -1,0 +1,60 @@
+{
+  "name": "chat-archive",
+  "version": "0.1.0",
+  "description": "Back up your iPhone chats to your own computer and read them offline.",
+  "license": "MIT",
+  "author": "Chat Archive contributors",
+  "private": true,
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "dev:mock": "cross-env CHAT_ARCHIVE_MOCK=1 electron-vite dev",
+    "build": "electron-vite build",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "e2e": "electron-vite build && playwright test",
+    "vendor": "tsx scripts/fetch-vendor.ts",
+    "licenses": "tsx scripts/license-report.ts",
+    "dist:mac": "npm run licenses && npm run vendor && electron-vite build && electron-builder --mac",
+    "dist:win": "npm run licenses && npm run vendor && electron-vite build && electron-builder --win"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.2.0",
+    "bplist-parser": "^0.6.0",
+    "plist": "^5.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "@playwright/test": "^1.65.1",
+    "@tanstack/react-virtual": "^3.14.26",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.6",
+    "@types/plist": "^3.0.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "bplist-creator": "^0.4.0",
+    "cross-env": "^10.1.0",
+    "electron": "^45.3.2",
+    "electron-builder": "^26.18.0",
+    "electron-vite": "^6.0.0",
+    "eslint": "^10.15.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tsx": "^4.23.15",
+    "typescript": "6.0",
+    "typescript-eslint": "^8.72.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0",
+    "zustand": "^5.1.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "better-sqlite3@13.2.0": true,
+    "electron-winstaller": false
+  }
+}
