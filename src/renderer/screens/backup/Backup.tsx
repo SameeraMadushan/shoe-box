@@ -306,7 +306,8 @@ function Storage({ app }: { app: AppState }) {
           </span>
           <span className="small muted">
             Keeps only your chat archive, which saves disk space. Every backup then copies the whole iPhone again, so it takes much
-            longer and needs that space free each time. Takes effect after the next backup.
+            longer and needs that space free each time. You also give up being able to restore an iPhone from it. Takes effect
+            after the next backup.
           </span>
         </div>
         <Toggle on={discard} labelledBy="sDiscard" onChange={(deleteBackupAfterExtract) => update({ deleteBackupAfterExtract })} />
@@ -342,9 +343,63 @@ function History({ app }: { app: AppState }) {
   );
 }
 
+/** How to restore a whole iPhone from the full backup. Shoebox does not do the restore itself. */
+function RestoreHelp({ app, onClose }: { app: AppState; onClose(): void }) {
+  const windows = app.platform === 'win32';
+  const sep = windows ? '\\' : '/';
+  const folder = `${app.settings.dataDir}${sep}backup`;
+  const complete = app.history.some((r) => r.status === 'succeeded');
+  return (
+    <Modal title="Restoring an iPhone from the backup" onClose={onClose}>
+      <div className="col gap12 text2" style={{ overflow: 'auto', fontSize: 14 }}>
+        {app.settings.deleteBackupAfterExtract && (
+          <div className="warn" role="alert">
+            <Warning />
+            <span>"Delete the iPhone backup after each run" is on, so no backup is kept to restore from. Turn it off to keep one.</span>
+          </div>
+        )}
+        {!complete && !app.settings.deleteBackupAfterExtract && (
+          <div className="warn" role="alert">
+            <Warning />
+            <span>No backup has finished yet. Only a completed backup can be restored.</span>
+          </div>
+        )}
+        <p>
+          Besides your chat archive, Shoebox keeps a full backup of your iPhone in Apple's standard format, the same kind{' '}
+          {windows ? 'the Apple Devices app' : 'Finder'} makes. Shoebox does not restore it for you, but Apple's own tools can.
+        </p>
+        <div className="inset col gap8">
+          <strong>Before you rely on it</strong>
+          <span>A restore replaces everything on the iPhone with the backup. It cannot bring back the chats alone.</span>
+          <span>Only the most recent backup is kept. Messages deleted on the phone before that backup are in your chat archive, not in the backup.</span>
+          <span>You need your iPhone backup password. Without it the backup cannot be opened by anyone.</span>
+          <span>The iPhone must run the same iOS version as the backup, or a newer one, and Find My must be turned off first.</span>
+        </div>
+        <div className="col gap8">
+          <strong>How to restore</strong>
+          <span>
+            1. Quit Shoebox. Copy the folder inside <span className="mono">{folder}</span> (its name is a long device id) into{' '}
+            <span className="mono">
+              {windows ? '%USERPROFILE%\\Apple\\MobileSync\\Backup' : '~/Library/Application Support/MobileSync/Backup'}
+            </span>
+            .
+          </span>
+          <span>
+            2. Connect the iPhone with a cable and open {windows ? 'the Apple Devices app' : 'Finder'}. Select the iPhone, choose Restore
+            Backup, pick this backup and enter the backup password.
+          </span>
+          <span>3. Keep the iPhone connected until it restarts and finishes.</span>
+        </div>
+        <p className="small muted">The project's documentation (docs/restore-to-iphone.md) has these steps and a command-line alternative.</p>
+      </div>
+    </Modal>
+  );
+}
+
 export function Backup() {
   const app = useApp();
   const [licences, setLicences] = useState<string | null>(null);
+  const [restoreHelp, setRestoreHelp] = useState(false);
   function restart() {
     useUi.getState().go('welcome');
     void window.api.restartOnboarding();
@@ -360,18 +415,22 @@ export function Backup() {
         <Storage app={app} />
         <History app={app} />
         <div className="info">
-          This archive is for keeping and reading your chats. It cannot be restored back into the chat app on an iPhone. All data stays on
-          this computer unless Google Drive sync is on.
+          The chat archive is for keeping and reading your chats. It cannot be put back into the chat app on its own. The full iPhone
+          backup kept beside it can restore a whole iPhone. All data stays on this computer unless Google Drive sync is on.
         </div>
         <div className="row gap16 wrap">
           <button className="btn2" onClick={restart}>
             Set up a different iPhone
+          </button>
+          <button className="link" onClick={() => setRestoreHelp(true)}>
+            Restoring an iPhone from the backup
           </button>
           <button className="link" onClick={() => void window.api.getLicences().then(setLicences)}>
             Open-source licences
           </button>
         </div>
       </div>
+      {restoreHelp && <RestoreHelp app={app} onClose={() => setRestoreHelp(false)} />}
       {licences !== null && (
         <Modal title="Open-source licences" onClose={() => setLicences(null)}>
           <pre>{licences}</pre>

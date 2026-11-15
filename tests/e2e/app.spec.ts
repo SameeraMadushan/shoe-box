@@ -65,7 +65,8 @@ test('full onboarding, then no request has left the app with Drive off', async (
   await expect(page.getByRole('heading', { name: 'Your chats are saved on this computer' })).toBeVisible();
   await expect(page.locator('.tile').nth(0)).toContainText('5');
   await expect(page.locator('.tile').nth(1)).toContainText('22');
-  await expect(page.getByText(/cannot be restored back into the chat app/)).toBeVisible();
+  await expect(page.getByText(/cannot be put back into the chat app on its own/)).toBeVisible();
+  await expect(page.getByText(/can restore a whole iPhone/)).toBeVisible();
   await button(page, 'Open my chats').click();
 
   await expect(page.getByRole('button', { name: /Nadia Perera/ })).toBeVisible();
@@ -322,6 +323,13 @@ test('optional setting deletes the iPhone backup after the chats are extracted',
   await button(page, 'Back up now').click();
   await expect(page.getByTestId('history-row')).toHaveCount(2, { timeout: 15_000 });
   expect(readdirSync(backupDir)).toHaveLength(0);
+  // The restore guide says so, instead of promising a backup that is no longer there.
+  await button(page, 'Restoring an iPhone from the backup').click();
+  const guide = page.getByRole('dialog', { name: 'Restoring an iPhone from the backup' });
+  await expect(guide.getByRole('alert')).toContainText('no backup is kept to restore from');
+  await expect(guide).toContainText('A restore replaces everything on the iPhone');
+  await expect(guide).toContainText('mock-data/backup');
+  await button(page, 'Close').click();
   // The chat archive itself is untouched.
   expect(existsSync(archive)).toBe(true);
   await button(page, 'Chats').click();

@@ -32,7 +32,7 @@ Meta, Apple, or Google.
 - Your archive is stored unencrypted in your user folder, protected by your computer
   login. Turn on FileVault or BitLocker.
 
-What it cannot do: restore chats into the chat app on any phone.
+What it cannot do: put chats alone back into the chat app. The full iPhone backup it keeps can restore a whole iPhone with Apple's tools; see `docs/restore-to-iphone.md`.
 
 ## Try it without an iPhone
 
@@ -104,6 +104,7 @@ npm run lint && npm run typecheck && npm test && npm run e2e
 - `docs/adr/0001-notes.md`: where the tools and references differ from it
 - `docs/build-report.md`: what was built, tested and left unverified
 - `docs/real-device-checklist.md`: the checks that need a real iPhone
+- `docs/restore-to-iphone.md`: restoring a whole iPhone from the full backup
 - `docs/restore-from-drive.md`: getting your archive back from Drive without this app
 - `THIRD_PARTY.md`: licences of everything shipped
 

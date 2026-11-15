@@ -28,6 +28,7 @@ Before you start:
 - [ ] 10. Restart the computer: the app starts in the tray and the next scheduled backup runs without a password prompt.
 - [ ] 11. Drive: connect, save the recovery key, confirm files in Drive have unreadable names, then recover one file with plain rclone (`docs/restore-from-drive.md`).
 - [ ] 12. Windows without Apple's drivers: the blocking screen appears, and clears after installing them.
+- [ ] 14. Restore: follow `docs/restore-to-iphone.md` with a spare iPhone (or one you can afford to wipe). Finder lists the backup, accepts the password and restores it. **Until this is ticked, restoring from a Shoebox backup is untested.**
 - [ ] 13. With Drive off, watch the network with a monitor for a full day: no outbound connections from the app.
 
 ## Things the build could not confirm, to watch for while doing the above

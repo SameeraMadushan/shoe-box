@@ -447,7 +447,8 @@ function Done() {
         </div>
       </div>
       <div className="info">
-        Good to know: this archive is for keeping and reading your chats. It cannot be restored back into the chat app on an iPhone.
+        Good to know: the chat archive is for keeping and reading your chats. It cannot be put back into the chat app on its own. The
+        full iPhone backup kept beside it is in Apple's standard format and can restore a whole iPhone; the Backup screen explains how.
       </div>
       <div>
         <button className="btn" onClick={() => void open()}>
