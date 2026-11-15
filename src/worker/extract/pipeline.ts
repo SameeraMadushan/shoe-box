@@ -1,5 +1,5 @@
-import { stat } from 'node:fs/promises';
-import { resolve, sep } from 'node:path';
+import { mkdir, stat } from 'node:fs/promises';
+import { dirname, resolve, sep } from 'node:path';
 import type { ArchiveStore, PendingMedia, SourceChat } from '../archive/store';
 
 /** Where chats come from: a decrypted iPhone backup, or the mock seed. */
@@ -44,6 +44,7 @@ export async function importSource(
     if (rel && dest && dest.startsWith(root + sep)) {
       // Media files are immutable: one already in the archive is never rewritten.
       const existing = await stat(dest).catch(() => null);
+      if (!existing) await mkdir(dirname(dest), { recursive: true });
       if (existing || (await source.copyMedia(item.localPath, dest))) {
         store.setMediaPath(item.mediaId, rel, existing?.size ?? (await stat(dest)).size);
         if (!existing) newMedia++;

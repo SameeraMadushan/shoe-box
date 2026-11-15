@@ -1,0 +1,6 @@
+AmountDataAvailable: 51834507264
+AmountDataReserved: 209715200
+TotalDataAvailable: 52044222464
+TotalDataCapacity: 122002505728
+TotalDiskCapacity: 128000000000
+TotalSystemCapacity: 5997494272

@@ -1,0 +1,12 @@
+Backup directory is "/tmp/x"
+Started "com.apple.mobilebackup2" service on port 49200.
+Negotiated Protocol Version 2.1
+Starting backup...
+Backup will be encrypted.
+Requesting backup from device...
+Incremental backup mode.
+[=========                                         ]  17% Finished
+[================                                  ]  31% (1.2 MB/3.9 MB)[==================================                ]  68% Finished
+Received 4 files from device.
+[==================================================] 100% Finished
+Backup Successful.

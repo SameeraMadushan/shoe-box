@@ -1,0 +1,6 @@
+Requesting backup from device...
+Full backup mode.
+[==                                                ]   4% Finished
+ErrorCode 105: Insufficient free disk space on drive to back up (MBErrorDomain/105)
+Received 0 files from device.
+Backup Failed (Error Code 105).

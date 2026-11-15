@@ -1,0 +1,1 @@
+ERROR: Please accept the trust dialog on the screen of device 00008120-001A2B3C4D5E6F01, then attempt to pair again.
