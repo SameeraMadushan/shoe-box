@@ -107,6 +107,11 @@ export class BackupRunner {
       }
       progress(4, 100);
       ok = true;
+      // Optional: give the disk space back. Only after a successful extraction, so a
+      // failed run can be retried without copying the phone again.
+      if (deps.settings.get().deleteBackupAfterExtract) {
+        await rm(join(backupRoot, device.udid), { recursive: true, force: true });
+      }
       await this.syncDrive(runId);
       log('run_succeeded', { runId, trigger, transport, ms: Date.now() - started });
       return { ok: true };

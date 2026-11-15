@@ -1,4 +1,6 @@
 import { expect, test, type ElectronApplication } from '@playwright/test';
+import { existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { button, launch, newUserData, onboard, toPasswordStep } from './helpers';
 
 let app: ElectronApplication | undefined;
@@ -297,4 +299,28 @@ test('a running backup can be stopped, and the space it needs is shown', async (
   await button(page, 'Stop backup').click();
   await expect(page.getByTestId('status-title')).toHaveText('Last backup failed');
   await expect(button(page, 'Retry now')).toBeEnabled();
+});
+
+test('optional setting deletes the iPhone backup after the chats are extracted', async () => {
+  const s = await launch();
+  app = s.app;
+  const { page } = s;
+  await onboard(page);
+  const backupDir = join(s.userData, 'mock-data', 'backup');
+  const archive = join(s.userData, 'mock-data', 'archive', 'archive.sqlite');
+  // Off by default: the backup is kept so later runs only copy what changed.
+  expect(readdirSync(backupDir)).toHaveLength(1);
+
+  await button(page, 'Backup and settings').click();
+  const toggle = page.getByRole('switch', { name: 'Delete the iPhone backup after each run' });
+  await expect(toggle).toHaveAttribute('aria-checked', 'false');
+  await toggle.click();
+  await expect(page.getByTestId('space')).toContainText('Needed again, temporarily, for every backup');
+  await button(page, 'Back up now').click();
+  await expect(page.getByTestId('history-row')).toHaveCount(2, { timeout: 15_000 });
+  expect(readdirSync(backupDir)).toHaveLength(0);
+  // The chat archive itself is untouched.
+  expect(existsSync(archive)).toBe(true);
+  await button(page, 'Chats').click();
+  await expect(page.getByRole('button', { name: /Nadia Perera/ })).toBeVisible();
 });

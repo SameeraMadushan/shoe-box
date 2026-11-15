@@ -243,7 +243,9 @@ function Storage({ app }: { app: AppState }) {
   const { backupBytes, mediaBytes, dbBytes, freeBytes } = app.storage;
   const phone = app.settings.phoneUsedBytes;
   // A full backup is about the size of what is on the phone; later backups only add what changed.
-  const stillNeeded = phone ? Math.max(0, phone - backupBytes) : 0;
+  const discard = app.settings.deleteBackupAfterExtract;
+  // With the backup discarded after each run, every run needs room for the whole phone again.
+  const stillNeeded = phone ? Math.max(0, phone - (discard ? 0 : backupBytes)) : 0;
   return (
     <section className="section pad" aria-label="Storage on this computer">
       <div className="row between gap12 wrap" style={{ alignItems: 'baseline' }}>
@@ -286,7 +288,7 @@ function Storage({ app }: { app: AppState }) {
               <strong className={freeBytes > 0 && stillNeeded > freeBytes ? 'bad-text' : ''}>
                 {stillNeeded > 0 ? `About ${bytes(stillNeeded)}` : 'Nothing more'}
               </strong>
-              Still to copy before the backup is complete
+              {discard ? 'Needed again, temporarily, for every backup' : 'Still to copy before the backup is complete'}
             </div>
           ) : null}
         </div>
@@ -297,6 +299,18 @@ function Storage({ app }: { app: AppState }) {
           <span>There is not enough free space to finish the backup. Free up about {bytes(stillNeeded - freeBytes)}, or change the location.</span>
         </div>
       ) : null}
+      <div className="row between gap16" style={{ borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+        <div className="col grow">
+          <span id="sDiscard" className="strong">
+            Delete the iPhone backup after each run
+          </span>
+          <span className="small muted">
+            Keeps only your chat archive, which saves disk space. Every backup then copies the whole iPhone again, so it takes much
+            longer and needs that space free each time. Takes effect after the next backup.
+          </span>
+        </div>
+        <Toggle on={discard} labelledBy="sDiscard" onChange={(deleteBackupAfterExtract) => update({ deleteBackupAfterExtract })} />
+      </div>
       <div className="row between gap12 wrap" style={{ borderTop: '1px solid var(--border)', paddingTop: 12 }}>
         <span className="text2" style={{ fontSize: 14 }}>
           Location: {app.settings.dataDir}

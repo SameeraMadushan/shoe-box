@@ -1,5 +1,7 @@
 // Mock DeviceService replaying the prototype's timings: device found after about
 // 2 s, trust after about 2 s, backup progress over about 8 s in total.
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { mockFlag, MOCK_SPEED } from '../main/config';
 import type { Device, DeviceInfo, DeviceService } from '../main/device/service';
 import { AppError } from '../shared/errors';
@@ -49,7 +51,7 @@ export class MockDeviceService implements DeviceService {
     return mockFlag('lowdisk') ? 1e18 : 38.2e9;
   }
 
-  async backup(_device: Device, _root: string, onProgress: (percent: number) => void, signal: AbortSignal): Promise<void> {
+  async backup(device: Device, root: string, onProgress: (percent: number) => void, signal: AbortSignal): Promise<void> {
     const first = !this.onboarded && this.backups === 0;
     this.backups++;
     if (!first && this.failNext) {
@@ -57,6 +59,9 @@ export class MockDeviceService implements DeviceService {
       throw new AppError('DEVICE_NOT_FOUND');
     }
     const steps = first ? 40 : 10;
+    // A stand-in backup folder, so storage figures and clean-up have something to act on.
+    await mkdir(join(root, device.udid), { recursive: true });
+    await writeFile(join(root, device.udid, 'Manifest.db'), Buffer.alloc(64 * 1024));
     for (let i = 1; i <= steps; i++) {
       await sleep(110);
       if (signal.aborted) throw new AppError('INTERRUPTED');

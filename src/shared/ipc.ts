@@ -37,6 +37,7 @@ export type EditableSetting =
   | 'startAtLogin'
   | 'wifiSync'
   | 'driveEnabled'
+  | 'deleteBackupAfterExtract'
   | 'lastScreen'
   | 'lastChatId';
 

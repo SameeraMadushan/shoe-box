@@ -17,6 +17,8 @@ export interface Settings {
   /** Set once the recovery key has been shown and confirmed. */
   driveConnected: boolean;
   driveEmail: string | null;
+  /** Remove the iPhone backup once the chats are extracted. Saves disk; every run then copies the whole phone again. */
+  deleteBackupAfterExtract: boolean;
   dataDir: string;
   udid: string | null;
   deviceName: string | null;

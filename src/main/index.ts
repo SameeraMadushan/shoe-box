@@ -33,7 +33,7 @@ if (!app.requestSingleInstanceLock()) app.quit();
 else void app.whenReady().then(main);
 
 const EDITABLE: EditableSetting[] = [
-  'scheduleEnabled', 'scheduleTime', 'notifyOnFail', 'startAtLogin', 'wifiSync', 'driveEnabled', 'lastScreen', 'lastChatId',
+  'scheduleEnabled', 'scheduleTime', 'notifyOnFail', 'startAtLogin', 'wifiSync', 'driveEnabled', 'deleteBackupAfterExtract', 'lastScreen', 'lastChatId',
 ];
 
 async function main(): Promise<void> {
