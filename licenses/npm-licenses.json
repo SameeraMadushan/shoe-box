@@ -1,0 +1,72 @@
+[
+  {
+    "name": "@fontsource/inter",
+    "version": "5.3.0",
+    "license": "OFL-1.1"
+  },
+  {
+    "name": "@fontsource/space-grotesk",
+    "version": "5.3.0",
+    "license": "OFL-1.1"
+  },
+  {
+    "name": "@tanstack/react-virtual",
+    "version": "3.14.26",
+    "license": "MIT"
+  },
+  {
+    "name": "@tanstack/virtual-core",
+    "version": "3.19.11",
+    "license": "MIT"
+  },
+  {
+    "name": "@xmldom/xmldom",
+    "version": "0.9.12",
+    "license": "MIT"
+  },
+  {
+    "name": "better-sqlite3",
+    "version": "13.2.0",
+    "license": "MIT"
+  },
+  {
+    "name": "electron",
+    "version": "45.3.2",
+    "license": "MIT"
+  },
+  {
+    "name": "node-addon-api",
+    "version": "8.9.2",
+    "license": "MIT"
+  },
+  {
+    "name": "plist",
+    "version": "5.1.1",
+    "license": "MIT"
+  },
+  {
+    "name": "react",
+    "version": "19.3.1",
+    "license": "MIT"
+  },
+  {
+    "name": "react-dom",
+    "version": "19.3.1",
+    "license": "MIT"
+  },
+  {
+    "name": "scheduler",
+    "version": "0.28.0",
+    "license": "MIT"
+  },
+  {
+    "name": "xmlbuilder",
+    "version": "15.1.1",
+    "license": "MIT"
+  },
+  {
+    "name": "zustand",
+    "version": "5.1.0",
+    "license": "MIT"
+  }
+]

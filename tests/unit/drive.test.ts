@@ -51,7 +51,6 @@ describe('OAuth with PKCE', () => {
     const browser = (tamper: boolean) => (authUrl: string) => {
       const q = new URL(authUrl).searchParams;
       const state = tamper ? 'forged' : q.get('state');
-      // eslint-disable-next-line no-restricted-globals -- loopback only, inside a test
       void globalThis.fetch(`${q.get('redirect_uri')}/?state=${state}&code=abc`);
     };
     expect(await signIn(fetch, client, browser(false))).toEqual({ refreshToken: 'r-token', email: null });

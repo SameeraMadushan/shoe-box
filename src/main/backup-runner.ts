@@ -1,7 +1,7 @@
 // One backup attempt from start to finish: find the phone, back it up, extract the
 // chats in the worker, then (optionally) sync to Drive.
 import { powerSaveBlocker } from 'electron';
-import { rm } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { sleep } from '../mocks/device.mock';
 import { AppError, toErrorCode, type ErrorCode } from '../shared/errors';
@@ -71,6 +71,8 @@ export class BackupRunner {
       transport = device.transport;
       const backupRoot = join(deps.settings.get().dataDir, 'backup');
 
+      // idevicebackup2 refuses a backup directory that does not exist yet.
+      await mkdir(backupRoot, { recursive: true, mode: 0o700 });
       progress(0, 0);
       await deps.device.backup(device, backupRoot, (p) => progress(0, p * 0.55));
       progress(1, 55);

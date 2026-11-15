@@ -1,0 +1,41 @@
+appId: org.chatarchive.app
+productName: Chat Archive
+copyright: Copyright © 2026 Chat Archive contributors
+directories:
+  output: dist
+files:
+  - out/**
+  - package.json
+  - LICENSE
+  - THIRD_PARTY.md
+  - licenses/**
+# Third-party tools ship unmodified as separate executables (ADR section 9).
+extraResources:
+  - from: vendor/${platform}-${arch}
+    to: bin
+  - from: licenses
+    to: licenses
+  - from: THIRD_PARTY.md
+    to: THIRD_PARTY.md
+# better-sqlite3 ships N-API prebuilds for every target; nothing to compile.
+npmRebuild: false
+# No auto-update: the app never checks for updates (ADR section 7).
+publish: null
+mac:
+  category: public.app-category.utilities
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+  # Unsigned by default. "-" is an ad-hoc signature, which Apple silicon requires to
+  # run at all. Set CSC_LINK / CSC_KEY_PASSWORD and remove this line to sign properly.
+  identity: '-'
+  hardenedRuntime: false
+  gatekeeperAssess: false
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true

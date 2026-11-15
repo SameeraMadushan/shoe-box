@@ -1,0 +1,28 @@
+{
+  "note": "Pinned third-party tool binaries. scripts/fetch-vendor.ts downloads these and refuses any file whose SHA-256 differs.",
+  "tools": ["idevice_id", "idevicepair", "ideviceinfo", "idevicebackup2"],
+  "platforms": {
+    "darwin-arm64": {
+      "bottles": [
+        { "name": "libimobiledevice", "version": "1.4.0", "url": "https://ghcr.io/v2/homebrew/core/libimobiledevice/blobs/sha256:7d80544bfe2cc2cc0f34865ffdb19d741b61d5162d520ade2a11e1e3999c630c", "sha256": "7d80544bfe2cc2cc0f34865ffdb19d741b61d5162d520ade2a11e1e3999c630c", "source": "https://github.com/libimobiledevice/libimobiledevice/releases/download/1.4.0/libimobiledevice-1.4.0.tar.bz2" },
+        { "name": "libimobiledevice-glue", "version": "1.3.3", "url": "https://ghcr.io/v2/homebrew/core/libimobiledevice-glue/blobs/sha256:8b529b79effd76fac07f8a85e1596a3e7b6b0c18f06f07c1579b5b5c45b0110e", "sha256": "8b529b79effd76fac07f8a85e1596a3e7b6b0c18f06f07c1579b5b5c45b0110e", "source": "https://github.com/libimobiledevice/libimobiledevice-glue/releases/download/1.3.3/libimobiledevice-glue-1.3.3.tar.bz2" },
+        { "name": "libplist", "version": "2.8.1", "url": "https://ghcr.io/v2/homebrew/core/libplist/blobs/sha256:d88d984b12e68f8470e9f72631a4711df0f85b8728c53e6c04bf2956267e84cc", "sha256": "d88d984b12e68f8470e9f72631a4711df0f85b8728c53e6c04bf2956267e84cc", "source": "https://github.com/libimobiledevice/libplist/releases/download/2.8.1/libplist-2.8.1.tar.bz2" },
+        { "name": "libtasn1", "version": "4.21.0", "url": "https://ghcr.io/v2/homebrew/core/libtasn1/blobs/sha256:973e0fd7d529808f53fa9ae281020bcbcc750a1dff60e5e5bc37c0da274cca5e", "sha256": "973e0fd7d529808f53fa9ae281020bcbcc750a1dff60e5e5bc37c0da274cca5e", "source": "https://ftpmirror.gnu.org/libtasn1/libtasn1-4.21.0.tar.gz" },
+        { "name": "libtatsu", "version": "1.1.1", "url": "https://ghcr.io/v2/homebrew/core/libtatsu/blobs/sha256:5a56f78092905876385d4b32a91fae011e288fb6de414551af905f33ffaa4792", "sha256": "5a56f78092905876385d4b32a91fae011e288fb6de414551af905f33ffaa4792", "source": "https://github.com/libimobiledevice/libtatsu/releases/download/1.1.1/libtatsu-1.1.1.tar.bz2" },
+        { "name": "libusbmuxd", "version": "2.1.1", "url": "https://ghcr.io/v2/homebrew/core/libusbmuxd/blobs/sha256:16b44e022f024205a1eb1421829f3f60ed845f6c2c64d6f02eaa2372585abb25", "sha256": "16b44e022f024205a1eb1421829f3f60ed845f6c2c64d6f02eaa2372585abb25", "source": "https://github.com/libimobiledevice/libusbmuxd/releases/download/2.1.1/libusbmuxd-2.1.1.tar.bz2" },
+        { "name": "openssl@4", "version": "4.1.0", "url": "https://ghcr.io/v2/homebrew/core/openssl/4/blobs/sha256:6fcbad388ef13f6f9481e91676e2ec1b49f0a3dbd473e838297a3c8850283978", "sha256": "6fcbad388ef13f6f9481e91676e2ec1b49f0a3dbd473e838297a3c8850283978", "source": "https://github.com/openssl/openssl/releases/download/openssl-4.1.0/openssl-4.1.0.tar.gz" }
+      ],
+      "rclone": { "version": "1.76.0", "url": "https://downloads.rclone.org/v1.76.0/rclone-v1.76.0-osx-arm64.zip", "sha256": "e72dc90b70f4947a7b72b61bde4a4fbba5777b2874fb448951ffdde67ebd0ab7" }
+    },
+    "darwin-x64": {
+      "bottles": null,
+      "todo": "Homebrew no longer publishes x86_64 macOS bottles of libimobiledevice 1.4.0. Build the tools on an Intel Mac (see docs/vendor-tools.md) and copy them to vendor/darwin-x64/.",
+      "rclone": { "version": "1.76.0", "url": "https://downloads.rclone.org/v1.76.0/rclone-v1.76.0-osx-amd64.zip", "sha256": "4f5835733d52b818340f97b1fc0348a70461534d123363a183ca2b660219595a" }
+    },
+    "win32-x64": {
+      "bottles": null,
+      "todo": "No trustworthy prebuilt Windows build of libimobiledevice 1.4.0 exists. Build the tools with MSYS2 (see docs/vendor-tools.md) and copy the .exe and .dll files to vendor/win32-x64/.",
+      "rclone": { "version": "1.76.0", "url": "https://downloads.rclone.org/v1.76.0/rclone-v1.76.0-windows-amd64.zip", "sha256": "8b4fd2737ade4e70c057ef4a49deb7cffe94b0fb9d7587c189d149823f21a1dc" }
+    }
+  }
+}

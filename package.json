@@ -16,8 +16,8 @@
     "e2e": "electron-vite build && playwright test",
     "vendor": "tsx scripts/fetch-vendor.ts",
     "licenses": "tsx scripts/license-report.ts",
-    "dist:mac": "npm run licenses && npm run vendor && electron-vite build && electron-builder --mac",
-    "dist:win": "npm run licenses && npm run vendor && electron-vite build && electron-builder --win"
+    "dist:mac": "npm run licenses && tsx scripts/fetch-vendor.ts darwin-arm64 && tsx scripts/fetch-vendor.ts darwin-x64 && electron-vite build && electron-builder --mac",
+    "dist:win": "npm run licenses && tsx scripts/fetch-vendor.ts win32-x64 && electron-vite build && electron-builder --win"
   },
   "dependencies": {
     "better-sqlite3": "^13.2.0",

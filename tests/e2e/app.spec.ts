@@ -231,3 +231,29 @@ test('too little disk space blocks the first backup', async () => {
   await expect(page.getByRole('alert')).toContainText('Not enough free disk space for the first backup.');
   await expect(page.getByRole('heading', { name: 'Back up over Wi-Fi from now on' })).toBeVisible();
 });
+
+test('a 200,000-message chat opens on the newest message and pages while scrolling', async () => {
+  const s = await launch({ flags: 'big' });
+  app = s.app;
+  const { page } = s;
+  await onboard(page);
+  await page.getByRole('button', { name: /Archive stress test/ }).click();
+  await expect(page.getByText(/200,000 messages archived/)).toBeVisible();
+  await expect(page.getByTestId('messages').getByText(/#199999$/)).toBeVisible();
+  // Only a window of rows is in the DOM, however long the chat is.
+  expect(await page.getByTestId('bubble').count()).toBeLessThan(80);
+
+  // Scroll to the top three times. Each time 200 older messages load and the view
+  // stays anchored on the message that was at the top.
+  const list = page.getByTestId('messages');
+  for (const anchor of [199_800, 199_600, 199_400]) {
+    await list.evaluate((el) => el.scrollTo({ top: 0 }));
+    await expect(list.getByText(new RegExp(`#${anchor}$`))).toBeVisible({ timeout: 10_000 });
+    expect(await list.evaluate((el) => el.scrollTop)).toBeGreaterThan(1000);
+  }
+  expect(await page.getByTestId('bubble').count()).toBeLessThan(80);
+
+  // Search inside the big chat jumps to the newest match.
+  await page.getByLabel('Search chats and messages').fill('#123456');
+  await expect(page.locator('[data-hit]')).toHaveText(/#123456/);
+});
