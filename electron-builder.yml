@@ -7,8 +7,6 @@ files:
   - out/**
   - package.json
   - LICENSE
-  - THIRD_PARTY.md
-  - licenses/**
 # Third-party tools ship unmodified as separate executables (ADR section 9).
 extraResources:
   - from: vendor/${platform}-${arch}

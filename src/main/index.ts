@@ -400,7 +400,10 @@ async function main(): Promise<void> {
       // Only fixed, allowlisted URLs ever open in the browser.
       if (Object.hasOwn(EXTERNAL_LINKS, link)) void shell.openExternal(EXTERNAL_LINKS[link]);
     },
-    getLicences: () => readFile(join(app.getAppPath(), 'THIRD_PARTY.md'), 'utf8').catch(() => 'Licence information is missing from this build.'),
+    getLicences: () =>
+      readFile(join(app.isPackaged ? process.resourcesPath : app.getAppPath(), 'THIRD_PARTY.md'), 'utf8').catch(
+        () => 'Licence information is missing from this build.',
+      ),
   };
   for (const channel of CHANNELS) {
     ipcMain.handle(channel, (_event, ...args) => (handlers[channel] as (...a: unknown[]) => unknown)(...args));

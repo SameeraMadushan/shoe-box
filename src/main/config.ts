@@ -27,7 +27,7 @@ export function defaultSettings(userData: string): Settings {
     driveConnected: false,
     driveEmail: null,
     // Mock data never touches the real archive folder.
-    dataDir: MOCK ? join(userData, 'mock-data') : join(homedir(), 'ChatArchive'),
+    dataDir: process.env.CHAT_ARCHIVE_DATA_DIR ?? (MOCK ? join(userData, 'mock-data') : join(homedir(), 'ChatArchive')),
     udid: null,
     deviceName: null,
     lastScreen: 'chats',
