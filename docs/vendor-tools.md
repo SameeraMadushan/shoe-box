@@ -1,4 +1,23 @@
-# Device tools for Intel Macs and Windows (manual steps)
+# Device tools for Intel Macs and Windows
+
+Released installers do not need the manual steps below: `.github/workflows/release.yml`
+gets the tools for all three platforms and checks that each one runs and reports
+version 1.4.0.
+
+- Intel Mac: `brew install libimobiledevice` on an Intel runner, then
+  `VENDOR_TOOLS_DIR=$(brew --cellar) npm run vendor -- darwin-x64`, which copies the
+  tools and their dylibs and rewrites the load paths, as for Apple silicon.
+- Windows: libimobiledevice 1.4.0 and libtatsu are built from their checksummed release
+  tarballs in MSYS2 (UCRT64) against MSYS2's libplist, libimobiledevice-glue, libusbmuxd
+  and OpenSSL packages. The tools and the DLLs they load are staged in one folder and
+  passed to `npm run vendor -- win32-x64` through `VENDOR_TOOLS_DIR`.
+
+Both write `PACKAGES.txt` (what was shipped, with versions) next to the tools.
+
+## By hand
+
+To do the same on your own machine, set `VENDOR_TOOLS_DIR` as above, or follow the
+older manual steps here.
 
 `npm run vendor` fetches rclone for every platform, but the libimobiledevice tools
 only for Apple silicon Macs (from Homebrew's bottles, checksummed in

@@ -55,11 +55,19 @@ function assembleMac(bottleDir: string): void {
   const libDir = join(outDir, 'lib');
   mkdirSync(libDir, { recursive: true });
   const placed: string[] = [];
+  // "name version" of every formula a file was taken from, read off .../<name>/<version>/{bin,lib}/<file>.
+  const packages = new Set<string>();
+  const take = (src: string, dest: string) => {
+    const real = realpathSync(src);
+    const from = /([^/]+)\/([^/]+)\/(?:bin|lib)\/[^/]+$/.exec(real);
+    if (from) packages.add(`${from[1]} ${from[2]}`);
+    copyFileSync(real, dest);
+    placed.push(dest);
+  };
   for (const tool of lock.tools) {
     const src = files.find((f) => f.endsWith(`/bin/${tool}`));
     if (!src) throw new Error(`Tool ${tool} not found in the bottles`);
-    copyFileSync(src, join(outDir, tool));
-    placed.push(join(outDir, tool));
+    take(src, join(outDir, tool));
   }
   // Copy only the dylibs the tools actually load, under the names they load them by.
   const available = new Map(files.filter((f) => /\/lib\/[^/]+\.dylib$/.test(f)).map((f) => [basename(f), f]));
@@ -75,8 +83,7 @@ function assembleMac(bottleDir: string): void {
       if (!existsSync(dest)) {
         const src = available.get(name);
         if (!src) throw new Error(`${basename(file)} needs ${name}, which no pinned bottle provides`);
-        copyFileSync(realpathSync(src), dest);
-        placed.push(dest);
+        take(src, dest);
       }
       run('install_name_tool', ['-change', dep, `${isLib ? '@loader_path' : '@loader_path/lib'}/${name}`, file]);
     }
@@ -84,6 +91,7 @@ function assembleMac(bottleDir: string): void {
   }
   // Editing load commands invalidates the signature; arm64 macOS refuses unsigned code.
   for (const file of placed) run('codesign', ['--force', '--sign', '-', file]);
+  writeFileSync(join(outDir, 'PACKAGES.txt'), [...packages].sort().join('\n') + '\n');
 }
 
 async function main(): Promise<void> {
