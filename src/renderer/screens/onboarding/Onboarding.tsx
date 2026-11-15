@@ -469,8 +469,10 @@ export function Onboarding() {
     <div className="onb">
       <div className="onb-head">
         <AppMark />
-        <span className="onb-name">Shoebox</span>
-        <span className="small muted">Free and open source</span>
+        <div className="col">
+          <span className="onb-name">Shoebox</span>
+          <span className="small muted">Free and open source</span>
+        </div>
       </div>
       <main className="card">
         {stepNum > 0 && (
